@@ -1,5 +1,7 @@
 function [h, p, stat] = test1DEquality(x1, w1, x2, w2, type)
-% [h p stat] = test1DEquality(mcVar, exVar, type)
+% [h p stat] = test1DEquality(x1, w1, x2, w2, type)
+%
+%	alpha = 0.01;
 %
 % types:	kolm-smirn
 %			cramer	
