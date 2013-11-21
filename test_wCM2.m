@@ -1,6 +1,6 @@
-function [H, pValue, CM_limiting_stat] = cmtest2(x1 , x2 , alpha)
+function [H, pValue, CM_limiting_stat] = test_wCM2(x1, w1, x2, w2, alpha)
 %CMTEST2 Two-sample Cramer-von Mises goodness-of-fit hypothesis test.
-%   H = CMTEST2(X1,X2,ALPHA,TAIL) performs a Cramer-von Mises (K-S) test
+%   H = test_wCM2(X1,X2,ALPHA,TAIL) performs a Cramer-von Mises (K-S) test
 %   to determine if independent random samples, X1 and X2, are drawn from
 %   the same underlying continuous population. ALPHA is an optional
 %   scalar input, which represents the desired significance level (default
@@ -53,7 +53,7 @@ function [H, pValue, CM_limiting_stat] = cmtest2(x1 , x2 , alpha)
 %
 % Last modification: 2009.05.23 Juan Cardelino
 
-if nargin < 2
+if nargin < 4
 	error('stats:cmtest2:TooFewInputs','At least 2 inputs are required.');
 end
 
@@ -80,6 +80,7 @@ end
 % Remove missing observations indicated by NaN's, and
 % ensure that valid observations remain.
 %
+
 x1  =  x1(~isnan(x1));
 x2  =  x2(~isnan(x2));
 x1  =  x1(:);
@@ -100,7 +101,7 @@ end
 % between 0 and 1 and set default if necessary.
 %
 
-if (nargin >= 3) && ~isempty(alpha)
+if (nargin >= 5) && ~isempty(alpha)
 	if numel(alpha) > 1
 		error('stats:cmtest2:BadAlpha',...
 			'Significance level ALPHA must be a scalar.');
@@ -118,16 +119,10 @@ end
 % Calculate F1(x) and F2(x), the empirical (i.e., sample) CDFs.
 %
 
-binEdges    =  [-inf ; sort([x1;x2]) ; inf];
+x =  sort(union(x1,x2));
+sampleCDF1 = wECDF(x1,w1,x);
+sampleCDF2 = wECDF(x2,w2,x);
 
-binCounts1  =  histc (x1 , binEdges);
-binCounts2  =  histc (x2 , binEdges);
-
-sumCounts1  =  cumsum(binCounts1)./sum(binCounts1);
-sumCounts2  =  cumsum(binCounts2)./sum(binCounts2);
-
-sampleCDF1  =  sumCounts1(1:end-1);
-sampleCDF2  =  sumCounts2(1:end-1);
 N1=length(x1);
 N2=length(x2);
 N=N1+N2;
@@ -176,8 +171,10 @@ elseif CM_limiting_stat < z(1)
 else
 	pValue = interp1(z,Pz,CM_limiting_stat,'linear');
 end
+
+pValue = 1 - pValue;
 % test the hypothesis
-H  =  alpha > 1-pValue;
+H  =  alpha > pValue;
 
 if verbose
 	fprintf('CM_stat: %6.5f CM_lim_stat: %6.5f\n',CMstatistic,CM_limiting_stat);

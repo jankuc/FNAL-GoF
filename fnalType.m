@@ -36,7 +36,6 @@ classdef fnalType < uint8
 			for k = 1:n-1
 				all(k) = fnalType(k);
 			end
-			
 		end
 	end
 end

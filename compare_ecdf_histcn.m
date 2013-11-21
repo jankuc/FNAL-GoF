@@ -14,8 +14,8 @@ w1 = ones(size(w));
 % w = w*n;
 
 x =  sort(union(x1,x2));
-f1 = wecdf(x1,w,x);
-f2 = wecdf(x2,w,x);
+f1 = wECDF(x1,w,x);
+f2 = wECDF(x2,w,x);
 
 plot(x,f1);
 hold on; plot(x,f2,'k');
