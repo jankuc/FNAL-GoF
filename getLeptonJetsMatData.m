@@ -1,4 +1,4 @@
-function [ data, weight ] = getLeptonJetsData(muoEle,lepJetType,varargin)
+function [ data, weight ] = getLeptonJetsMatData(muoEle,lepJetType,varargin)
 %	[ data, weight ] =  getLeptonJetsData(muoEle,lepJetType,varargin)
 %
 %
@@ -19,14 +19,14 @@ if (sum(ismember(fieldnames(paramStruct),fieldnames(validStruct))) ~= length(fie
     error('Fieldnames of structures do not correspond. Check Name-value pairs in the function input.')
 end
 
-ext = '.txt';
+ext = '.mat';
 dataDim = 25;
 
 if isreal(lepJetType)
     lepJetType = leptonJetType(lepJetType);
 end
 
-[str] = loadLocalConfig('./local-config.xml');
+[str] = loadLocalConfig('local-config.xml');
 
 dirMuo = str.dir.muo;
 dirEle = str.dir.ele;
@@ -38,52 +38,23 @@ if strcmp(muoEle, 'muo')
 elseif strcmp(muoEle, 'ele')
     dir = dirEle;
 end
+
 lepJetLength = length(lepJetType);
 filename = cell(lepJetLength,1);
 for k = 1:lepJetLength
     filename{k} = [lepJetType(k).toString '_miniTree' ext];
 end
 
-maxLines = 1e5;
-format = '';
-numColumnsInFile = 30;
-for l = 1:numColumnsInFile
-    format = [format, '%f '];
-end
-format = [format, '\n'];
-
 X = cell(lepJetLength);
 for k = 1:lepJetLength
     try
-        try
-            [~, result] = system( ['wc -l ', [dir '/' filename{k}]] );
-            numLines = sscanf(result, '%d');
-        catch
-            numLines = 1e7;
-        end
-        numOfReads = floor(numLines/maxLines) + 1;
-        fid = fopen([dir '/' filename{k}]);
-        Xtmp = cell(numOfReads,1);
-        
-        for l = 1:numOfReads
-            Xtmp{l} = textscan(fid,format,maxLines,'CollectOutput', 1);
-        end
-        
-        %X{k} = importdata([dir '/' filename{k}]);
+        Xtmp = load([dir '/' filename{k}]);
+        X{k} = Xtmp.X;
     catch e
         disp(['Could not load: ' dir '/' filename{k} ])
         disp(e)
     end
-    X{k} = [];
-    for l=1:numOfReads
-        X{k} = [X{k}; Xtmp{l}{1}];
-    end
-    fclose(fid);
 end
-if size(X{1},2)~=numColumnsInFile
-    error('ERROR: Format of data has changed.')
-end
-
 
 % last columns of X: "NJets","type","Weight","train","val"
 try	train = getfield(paramStruct, 'train');

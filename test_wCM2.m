@@ -81,10 +81,14 @@ end
 % ensure that valid observations remain.
 %
 
-x1  =  x1(~isnan(x1));
-x2  =  x2(~isnan(x2));
-x1  =  x1(:);
-x2  =  x2(:);
+w1 = w1(~isnan(x1));
+x1 = x1(~isnan(x1));
+
+w2 = w2(~isnan(x2));
+x2 = x2(~isnan(x2));
+
+x1 = x1(:);
+x2 = x2(:);
 
 if isempty(x1)
 	error('stats:cmtest2:NotEnoughData',...

@@ -13,8 +13,8 @@ alpha = 0.05;
 
 types{1} = 'kolm-smirn';
 types{2} = 'cramer';
-types{3} = 'wilcoxon';
-types{4} = 'wGMWW';
+types{3} = 'ranksum';
+types{4} = 'wwilcoxon';
 
 if strcmp(type,types{1})
 	[h, p, stat] = test_wKS2(x1, w1, x2, w2, alpha);

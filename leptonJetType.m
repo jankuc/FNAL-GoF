@@ -36,7 +36,7 @@ classdef leptonJetType < uint8
 				all(k) = leptonJetType(k);
 			end
 		end
-		function n = getNumOfTypes()
+		function n = numTypes()
 			n = 18;
 		end
 	end
