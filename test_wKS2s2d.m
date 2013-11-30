@@ -2,7 +2,7 @@ function [H, pValue, KSstatistic] = test_wKS2s2d(x1,w1, x2,w2, alpha)
 
 % kstest_2s_2d - FUNCTION Two-sample Two-diensional Kolmogorov-Smirnov Test
 %
-% Usage:[H, pValue, KSstatistic] = kstest_2s_2d(x1, x2 <, alpha>)
+% Usage:[H, pValue, KSstatistic] = kstest_2s_2d(x1,w1, x2,w2, alpha)
 %
 % The paired-sample Kolmogorov-Smirnov test is a statistical test used to
 % determine whether two sets of data arise from the same or different

@@ -50,6 +50,12 @@ for k = 1:length(dirListing)
         X = [X; Xtmp{l}{1}];
     end
     fclose(fid);
+    
+    if ~isempty( strfind(filename{k},'data'))
+        X(:,end) = 3;
+        X(:,end-1) = 3;
+    end
+    
     save(strrep(filename{k},'.txt','.mat'),'X');
     
     disp([filename{k}, ' converted succesfully.'])

@@ -1,21 +1,21 @@
-classdef leptonJetType < uint8
+classdef leptonVar < uint8
   % SIGNALTYPE map 1..13 -> 'diboson','tb',...
   %   leptonJetType(5).toString == leptonJetType.QCD == 'QCD'
   
   enumeration
-    data (1),
-    QCD (2),
-    tb (3),
-    tqb (4),
-    ttA_172 (5),
-    ttAll_172 (6),
-    Wbb (7),
+    Apia (1),
+    Spher (2),
+    HTL (3),
+    JetMt (4),
+    HT3 (5),
+    MEvent (6),
+    MT1NL (7),
     Wcc (8),
     Wlp (9),
     WW (10)
     WZ (11)
-    ZbbEE (12),
-    ZbbTauTau (13),
+    MeT (12),
+    Mtt (13),
     ZccEE (14),
     ZccTauTau (15)
     ZlpEE (16),
@@ -31,9 +31,9 @@ classdef leptonJetType < uint8
     function all = getAll()
       % returns vector of all types without data
       n = 18;
-      all(n,1) = leptonJetType(n);
+      all(n,1) = leptonVar(n);
       for k = 1:n-1
-        all(k) = leptonJetType(k);
+        all(k) = leptonVar(k);
       end
     end
     function n = numTypes()

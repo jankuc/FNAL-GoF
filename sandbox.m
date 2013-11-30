@@ -28,7 +28,6 @@ if 0
 	stat = const * (doubleSum - 1)
 end
 if 1
-	w
 end
 
 chiQuant = icdf('chi2', [alpha/2, 1 - alpha/2], k - 1)
@@ -36,3 +35,6 @@ chiQuant = icdf('chi2', [alpha/2, 1 - alpha/2], k - 1)
 [h_ks, p_ks, stat_ks] = kstest(X);
 disp('kolmogorov-Smirnov')
 disp([h_ks, p_ks, stat_ks])
+
+ [X1 w1] = getLeptonJetsRamData('muo', 1:leptonJetType.numTypes,...
+          'njets',njets, data{l}{2}, data{l}{3});
