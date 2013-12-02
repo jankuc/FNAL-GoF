@@ -95,43 +95,16 @@ if size(X{1},2)~=numColumnsInFile
   error('ERROR: Format of data has changed.')
 end
 
-
 % last columns of X: "NJets","type","Weight","train","val"
-try	train = getfield(paramStruct, 'train');
-  for k = 1:lepJetLength
-    Y = X{k};
-    Y = Y(Y(:,end-1)==train,:);
-    X{k} = Y;
-  end
-end
-try val = getfield(paramStruct,'val');
-  for k = 1:lepJetLength
-    Y = X{k};
-    Y = Y(Y(:,end)==val,:);
-    X{k} = Y;
-  end
-end
-try njets = getfield(paramStruct,'njets');
-  for k = 1:lepJetLength
-    Y = X{k};
-    Y = Y(Y(:,end-4)==njets,:);
-    X{k} = Y;
-  end
-end
-try type = getfield(paramStruct,'type');
-  for k = 1:lepJetLength
-    Y = X{k};
-    Y = Y(Y(:,end-3)==type,:);c
-    X{k} = Y;
-  end
 end
 
-Z = [];
-for k = 1:lepJetLength
-  Z = [Z;X{k}];
-end
-data = Z(:,1:dataDim);
-weight = Z(:, end-2);
-
+function Y = filterRows(Y, yFlagsCol, logic)
+  if size(logic,2) > 1
+    YFlagsRep = repmat(yFlagsCol,1,size(logic,2));
+    logicRep = repmat(logic, size(YFlagsRep,1),1);
+    Y = Y(sum(YFlagsRep==logicRep,2)>0,:);
+  else
+    Y = Y(yFlagsCol==logic,:);
+  end
 end
 

@@ -1,4 +1,4 @@
-function leptonJetData = LeptonJetsMat2Ram()
+function leptonJetData = leptonJetsMat2Ram()
 % loads all the lepJet data into one matrix
 
 [data, ~, last6cols]= getLeptonJetsMatData('muo',1:leptonJetType.numTypes);

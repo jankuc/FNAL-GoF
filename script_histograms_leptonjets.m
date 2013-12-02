@@ -1,40 +1,39 @@
 
 particle{1} = 'ele';
 particle{2} = 'muo';
+doParticle = [1];
 
-data{1} = {'TT-Yi','train',1,0};
+data{1} = {'TT-Yi','train',[1 3],0};
 data{2} = {'Tr-Te','val',1,2};
 data{3} = {'TT-Da','train',1,3};
 data{4} = {'Yi-Da','val',0,3};
-doData = [4 1];
+doData = [1 4];
 
 nJets{1} = 2;
 nJets{2} = 3;
 nJets{3} = 4;
+doNJets = [2];
 
 weighted{1} = 1;
 %weighted{2} = 0;
 
-for k = 1:length(particle)
+for k = doParticle
   for l = doData
-    for m = 1:length(nJets)
+    for m = doNJets
       for n = 1:length(weighted)
+        vars = [5];
+        njets = nJets{m};
         
-        dir = particle{k};
-        njets = nJets{m} ;
+        [X1 w1] = getLeptonJetsRamData(particle{k}, 1:leptonJetType.numTypes,...
+          'njets', nJets{m}, data{l}{2}, data{l}{3});
+        [X2 w2] = getLeptonJetsRamData(particle{k}, 1:leptonJetType.numTypes,...
+          'njets', nJets{m}, data{l}{2}, data{l}{4});
         
-        [X1 w1] = getLeptonJetsRamData(dir, 1:leptonJetType.numTypes,...
-          'njets',njets, data{l}{2}, data{l}{3});
-        [X2 w2] = getLeptonJetsRamData(dir, 1:leptonJetType.numTypes,...
-          'njets',njets, data{l}{2}, data{l}{4});
-        
-        vars = [1:4, 13];
         for v = vars
           testType = 'kolm-smirn';
           [hyp, pval, stat] = ...
             test1DEquality(X1(:,v), w1, X2(:,v), w2, testType);
-          
-          nbin1 = 60;
+          nbin1 = 15;
           [f1, x1] = histwc(X1(:,v), w1,nbin1);
           max1 = max(X1(:,v));
           min1 = min(X1(:,v));
@@ -57,7 +56,7 @@ for k = 1:length(particle)
           colormap(autumn)
           legend(data{l}{1}(1:2),data{l}{1}(end-1:end))
           vv= axis;
-          titl = [dir, ' ', data{l}{1}, ' nJets:', num2str(njets),...
+          titl = [particle{k}, ' ', data{l}{1}, ' nJets:', num2str(nJets{m}),...
             ' weighted: ',num2str(weighted{n}),' var: ', num2str(v)];
           th = title(sprintf([titl '\n H=' num2str(hyp) ', pval=' num2str(pval)]), 'EdgeColor','k');
           set(th, 'Position',[vv(2)*0.45,vv(4)*0.7, 0])

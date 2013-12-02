@@ -20,7 +20,7 @@ function [ data, weight ] = getLeptonJetsRamData(muoEle,lepJetType, varargin)
 
 try leptonJetData = evalin( 'base', 'leptonJetData' );
 catch
-  leptonJetData = LeptonJetsMat2Ram(); 
+  leptonJetData = LeptonJetsMat2Ram();
   assignin('base', 'leptonJetData', leptonJetData);
 end
 
@@ -43,21 +43,31 @@ end
 
 dataDim = 25;
 
-% last columns of X: "NJets","type","Weight","train","val"
+% last columns of X: "", "NJets","type","Weight","train","val"
+
+try njets = getfield(paramStruct,'njets');
+  if (length(njets)==1 && njets >=4)
+    Y = Y(Y(:,end-4)>=njets,:);
+  else
+    yFlagsCol = Y(:,end-4);
+    logic = njets;
+    Y = filterRows(Y, yFlagsCol, logic);
+  end
+end
 try	train = getfield(paramStruct, 'train');
-    Y = Y(Y(:,end-1)==train,:); 
+  yFlagsCol = Y(:,end-1);
+  logic = train;
+  Y = filterRows(Y, yFlagsCol, logic);
 end
 try val = getfield(paramStruct,'val');
-    Y = Y(Y(:,end)==val,:);
-end
-try njets = getfield(paramStruct,'njets');
-    if njets >=4
-      Y = Y(Y(:,end-4)>=njets,:);
-    end
-    Y = Y(Y(:,end-4)==njets,:);
+  yFlagsCol = Y(:,end);
+  logic = val;
+  Y = filterRows(Y, yFlagsCol, logic);
 end
 try type = getfield(paramStruct,'type');
-    Y = Y(Y(:,end-3)==type,:);
+  yFlagsCol = Y(:,end-3);
+  logic = type;
+  Y = filterRows(Y, yFlagsCol, logic);
 end
 
 data = Y(:,1:dataDim);
@@ -65,3 +75,12 @@ weight = Y(:, end-2);
 
 end
 
+function Y = filterRows(Y, yFlagsCol, logic)
+  if size(logic,2) > 1
+    YFlagsRep = repmat(yFlagsCol,1,size(logic,2));
+    logicRep = repmat(logic, size(YFlagsRep,1),1);
+    Y = Y(sum(YFlagsRep==logicRep,2)>0,:);
+  else
+    Y = Y(yFlagsCol==logic,:);
+  end
+end

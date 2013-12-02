@@ -168,15 +168,15 @@ n1     =  length(x1);
 n2     =  length(x2);
 n      =  n1 * n2 /(n1 + n2);
 
-lambdaOld =  max((sqrt(n) + 0.12 + 0.11/sqrt(n)) * KSstatistic , 0);
-lambdaAndel = max(sqrt(n) * KSstatistic , 0);
+lambdaAproxOld =  max((sqrt(n) + 0.12 + 0.11/sqrt(n)) * KSstatistic , 0);
+lambdaAproxAndel = max(sqrt(n) * KSstatistic , 0);
 
 if tail ~= 0        % 1-sided test.
     pVal  =  exp(-2 * lambda * lambda);
 else                % 2-sided test (default).
     %  Use the asymptotic Q-function to approximate the 2-sided P-value.
-     pVal = lambda2pVal(lambdaOld);
-     %pVal2 = 1-lambda2pVal(lambdaAndel);
+     pVal = lambda2pVal(lambdaAproxOld)
+     pVal2 = lambda2pVal(lambdaAproxAndel)
 end
 
 H = alpha >= pVal;
@@ -184,6 +184,7 @@ H = alpha >= pVal;
 end
 function pVal = lambda2pVal(lambda)
     j       =  (1:101)';
-    pVal  =  2 * sum((-1).^(j-1).*exp(-2*lambda*lambda*j.^2)); % = K
+    jj = (-1).^(j-1).*exp(-2 * lambda^2 * j.^2);
+    pVal  =  2 * sum(jj); % = K
     pVal  =  min(max(pVal, 0), 1); % pValue in <0,1>
 end
