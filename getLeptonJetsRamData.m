@@ -20,7 +20,7 @@ function [ data, weight ] = getLeptonJetsRamData(muoEle,lepJetType, varargin)
 
 try leptonJetData = evalin( 'base', 'leptonJetData' );
 catch
-  leptonJetData = LeptonJetsMat2Ram();
+  leptonJetData = leptonJetsMat2Ram();
   assignin('base', 'leptonJetData', leptonJetData);
 end
 
