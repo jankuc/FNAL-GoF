@@ -51,12 +51,8 @@ for k = 1:length(dirListing)
     end
     fclose(fid);
     
-<<<<<<< HEAD
     if ~isempty( strfind(filename{k},'data.txt'))
-=======
     % change flag of 'train' and 'val' of data to 3
-    if ~isempty( strfind(filename{k},'data'))
->>>>>>> 9ce3edec0656a63611870b7ccf7ceb02da4cf457
         X(:,end) = 3;
         X(:,end-1) = 3;
     end
