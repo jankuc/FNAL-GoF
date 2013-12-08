@@ -60,6 +60,7 @@ for k = 1:lepJetLength
   try
     Xtmp = load([dir '/' filename{k}]);
     X{k} = [Xtmp.X(:,1:dataDim)   k*ones(size(Xtmp.X,1),1)   Xtmp.X(:,end-4:end)];
+    disp(['Loaded: W = ', num2str(sum(Xtmp.X(:,end-2))),', N = ',num2str(size(Xtmp.X,1))])
   catch e
     disp(['Could not load: ' dir '/' filename{k} ])
     disp(e)
