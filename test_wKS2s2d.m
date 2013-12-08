@@ -1,8 +1,8 @@
 function [H, pValue, KSstatistic] = test_wKS2s2d(x1,w1, x2,w2, alpha)
 
-% kstest_2s_2d - FUNCTION Two-sample Two-diensional Kolmogorov-Smirnov Test
+% [H, pValue, KSstatistic] = kstest_2s_2d(x1,w1, x2,w2, alpha)
 %
-% Usage:[H, pValue, KSstatistic] = kstest_2s_2d(x1,w1, x2,w2, alpha)
+% Two-sample Two-diensional Kolmogorov-Smirnov Test
 %
 % The paired-sample Kolmogorov-Smirnov test is a statistical test used to
 % determine whether two sets of data arise from the same or different
@@ -81,34 +81,28 @@ end
 % - A function handle to perform comparisons in all possible directions
 fhCounts = @(x, w, edge)...
 	([...
-	w.*((x(:, 1) >= edge(1)) & (x(:, 2) >= edge(2))),...
-	w.*((x(:, 1) < edge(1)) & (x(:, 2) >= edge(2))),...
-	w.*((x(:, 1) < edge(1)) & (x(:, 2) < edge(2))),...
-	w.*((x(:, 1) >= edge(1)) & (x(:, 2) < edge(2)))...
+	w((x(:, 1) >= edge(1)) & (x(:, 2) >= edge(2))),...
+	w((x(:, 1) < edge(1)) & (x(:, 2) >= edge(2))),...
+	w((x(:, 1) < edge(1)) & (x(:, 2) < edge(2))),...
+	w((x(:, 1) >= edge(1)) & (x(:, 2) < edge(2)))...
 	]);
 
 KSstatistic = -inf;
 
+w1 = (w1 ./ sum(w1))';
+w2 = (w2 ./ sum(w2))';
+
+X = [x1;x2];
+
 for iX = 1:(n1+n2)
-   % - Choose a starting point
-   if (iX<=n1)
-      edge = x1(iX,:);
-   else
-      edge = x2(iX-n1,:);
-   end
-   
-   % - Estimate the CDFs for both distributions around this point
-   vfCDF1 = sum(fhCounts(x1, w1, edge)) ./ sum(w1);
-   vfCDF2 = sum(fhCounts(x2, w2, edge)) ./ sum(w2);
-   
-   % - Two-tailed test statistic
-   vfThisKSTS = abs(vfCDF1 - vfCDF2);
-   fKSTS = max(vfThisKSTS);
-   
-   % - Final test statistic is the maximum absolute difference in CDFs
-   if (fKSTS > KSstatistic)
-      KSstatistic = fKSTS;
-   end
+    % - Choose a starting point
+    edge = X(iX,:);
+    % - Estimate the CDFs for both distributions around this point
+    vfCDF1 = sum(fhCounts(x1, w1, edge));
+    vfCDF2 = sum(fhCounts(x2, w2, edge));
+    % - Two-tailed test statistic
+    % - Final test statistic is the maximum absolute difference in CDFs
+    KSstatistic = max(KSstatistic, max(abs(vfCDF1 - vfCDF2)));
 end
 
 %% Peacock Z calculation and P estimation

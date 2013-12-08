@@ -51,7 +51,7 @@ for k = 1:length(dirListing)
     end
     fclose(fid);
     
-    if ~isempty( strfind(filename{k},'data'))
+    if ~isempty( strfind(filename{k},'data.txt'))
         X(:,end) = 3;
         X(:,end-1) = 3;
     end
