@@ -98,13 +98,4 @@ end
 % last columns of X: "NJets","type","Weight","train","val"
 end
 
-function Y = filterRows(Y, yFlagsCol, logic)
-  if size(logic,2) > 1
-    YFlagsRep = repmat(yFlagsCol,1,size(logic,2));
-    logicRep = repmat(logic, size(YFlagsRep,1),1);
-    Y = Y(sum(YFlagsRep==logicRep,2)>0,:);
-  else
-    Y = Y(yFlagsCol==logic,:);
-  end
-end
 

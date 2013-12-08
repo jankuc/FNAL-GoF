@@ -1,18 +1,18 @@
 
 particle{1} = 'ele';
 particle{2} = 'muo';
-doParticle = [1];
+doParticle = [2];
 
-data{1} = {'TT-Yi','train',[1 3],0};
-data{2} = {'Tr-Te','val',1,2};
-data{3} = {'TT-Da','train',1,3};
-data{4} = {'Yi-Da','val',0,3};
-doData = [1 4];
+data{1} = {'Train + Test vs. Yield','train',1,0};
+data{2} = {'Train vs. Test','val',1,2};
+data{3} = {'Train + Test vs. Data','train',1,3};
+data{4} = {'Yield vs. Data','train',0,3};
+doData = [4];
 
 nJets{1} = 2;
 nJets{2} = 3;
 nJets{3} = 4;
-doNJets = [2];
+doNJets = [2 3];
 
 weighted{1} = 1;
 %weighted{2} = 0;
@@ -21,7 +21,7 @@ for k = doParticle
   for l = doData
     for m = doNJets
       for n = 1:length(weighted)
-        vars = [5];
+        vars = [1];
         njets = nJets{m};
         
         [X1 w1] = getLeptonJetsRamData(particle{k}, 1:leptonJetType.numTypes,...
@@ -29,11 +29,15 @@ for k = doParticle
         [X2 w2] = getLeptonJetsRamData(particle{k}, 1:leptonJetType.numTypes,...
           'njets', nJets{m}, data{l}{2}, data{l}{4});
         
+        %         wYi = sum(w1)
+        %         wDa = sum(w2)
+        %         continue
+        
         for v = vars
           testType = 'kolm-smirn';
           [hyp, pval, stat] = ...
             test1DEquality(X1(:,v), w1, X2(:,v), w2, testType);
-          nbin1 = 15;
+          nbin1 = 60;
           [f1, x1] = histwc(X1(:,v), w1,nbin1);
           max1 = max(X1(:,v));
           min1 = min(X1(:,v));
@@ -54,14 +58,22 @@ for k = doParticle
           subplot(2,1,1)
           bar(x,[f1 f2], 0.98)
           colormap(autumn)
-          legend(data{l}{1}(1:2),data{l}{1}(end-1:end))
+          
+          % Legend
+          vs = ' vs. ';
+          legendTitle1 = data{l}{1}(1: strfind(data{l}{1}, vs)-1);
+          legendTitle2 = data{l}{1}((strfind(data{l}{1}, vs) + length(vs)):end);
+          legend(legendTitle1,legendTitle2)
+          
+          % Title
           vv= axis;
-          titl = [particle{k}, ' ', data{l}{1}, ' nJets:', num2str(nJets{m}),...
+          titl = [particle{k}, ': ', data{l}{1}, ' nJets: ', num2str(nJets{m}),...
             ' weighted: ',num2str(weighted{n}),' var: ', num2str(v)];
-          th = title(sprintf([titl '\n H=' num2str(hyp) ', pval=' num2str(pval)]), 'EdgeColor','k');
-          set(th, 'Position',[vv(2)*0.45,vv(4)*0.7, 0])
+          th = title(sprintf([titl '\n H=' num2str(hyp) ', pval=' num2str(pval)])); %, 'EdgeColor','k');
+          %set(th, 'Position',[vv(2)*0.45,vv(4)*0.7, 0])
+          
           subplot(2,1,2)
-          hPomer = bar(x, f2./f1, 0.4,'k');
+          hPomer = bar(x, f2-f1, 0.4,'k');
           set(hPomer(1),'BaseValue',1);
           saveas(h,['figures/' titl], 'png');
         end

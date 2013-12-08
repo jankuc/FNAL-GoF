@@ -51,6 +51,7 @@ for k = 1:length(dirListing)
     end
     fclose(fid);
     
+    % change flag of 'train' and 'val' of data to 3
     if ~isempty( strfind(filename{k},'data'))
         X(:,end) = 3;
         X(:,end-1) = 3;
@@ -58,7 +59,7 @@ for k = 1:length(dirListing)
     
     save(strrep(filename{k},'.txt','.mat'),'X');
     
-    disp([filename{k}, ' converted succesfully.'])
+    disp([filename{k}, ' converted succesfully. W = ', num2str(sum(X(:,end-2))), ' N = ', num2str(size(X,1)) ])
 end
 
 
