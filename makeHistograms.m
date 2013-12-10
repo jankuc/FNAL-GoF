@@ -1,4 +1,4 @@
-function makeHistograms(particleIn, njetsIn, doData)
+function res = makeHistograms(particleIn, njetsIn, doData)
 % makeHistograms(particleIn, njetsIn)
 %
 % particleIn: 1 ... ele, 2 ... muo
@@ -26,7 +26,8 @@ doNJets = njetsIn;
 weighted{1} = 1;
 %weighted{2} = 0;
 vars = [1:24];
-
+numResults = 0;
+res = cell(24,8);
 for k = doParticle
   for l = doData
     mkdir(data{l}{1});
@@ -42,7 +43,7 @@ for k = doParticle
         %         wDa = sum(w2)
         %         continue
         
-        for v = var
+        for v = vars
           % skip Lepemv (v==24) for muon (k==2)
           if k == 2 && v == 24
             continue
@@ -51,8 +52,8 @@ for k = doParticle
           if njets == 2 && v == 5
             continue
           end
-          
-          kk = kk + 1;
+          try
+          numResults = numResults + 1;
           currVar = leptonJetVar(v);
           
           %[XX1, ww1] = cropVarToHistInterval(X1(:,v),w1,v);
@@ -75,15 +76,15 @@ for k = doParticle
             w2f = w2f(~areBelowZero2);
             X2f = X2f(~areBelowZero2);
           else
-            areBelowZero1 = nan;
-            areBelowZero2 = nan;
-            
+            areBelowZero1 = logical(zeros(size(w1f)));
+            areBelowZero2 = logical(zeros(size(w2f)));
           end
           testType = 'kolm-smirn';
           [hyp, pval, stat] = ...
             test1DEquality(X1f, w1f, X2f, w2f, testType);
     %lepton, dataSet, nJets, var, H, pVal, stat 
-          [k, l, njets, v, hyp, pval, stat]
+          %[k, l, njets, v, hyp, pval, stat]
+          kk = numResults;
           res{kk,1} = particle{k};
           res{kk,2} = data{l}{1};
           res{kk,3} = njets;
@@ -92,12 +93,10 @@ for k = doParticle
           res{kk,6} = hyp;
           res{kk,7} = pval;
           res{kk,8} = stat;
-          disp([res{kk,1} '_' res{kk,2} '_njets-' num2str(res{kk,3}),...
-            '_var-' num2str(res{kk,4}) '-' res{kk,5} '_H=' num2str(res{kk,6}),...
-            '_pval=' num2str(res{kk,7}) '_stat=' num2str(res{kk,8})  ])
+          
           nbin1 = 60;
-          try
-            [a, b] = currVar.histInterval(njets);
+          
+            [a, b] = currVar.histInterval(njets,k);
             %           max1 = max(X1f);
             %           min1 = min(X1f);
             %           d1 = (max1 - min1)/nbin1;
@@ -108,9 +107,7 @@ for k = doParticle
             [f2, x2] = histwc(X2f, w2f,nbin1, a, b);
             f2 = [f2; zeros(length(f1) - length(f2),1)];
             f1 = [f1; zeros(length(f2) - length(f1),1)];
-          catch
             
-          end
           x = x1;
           if length(x2) > length(x1)
             x = x2;
@@ -128,10 +125,10 @@ for k = doParticle
           legendTitle2 = data{l}{1}((strfind(data{l}{1}, vs) + length(vs)):end);
           sw1 = floor(sum(w1f));
           sw2 = floor(sum(w2f));
-          sn1 = sum(w1(arenan1));
-          sn2 = sum(w2(arenan2));
-          sbz1 = sum(w1(areBelowZero1));
-          sbz2 = sum(w2(areBelowZero2));
+          sn1 = sum(w1f(arenan1));
+          sn2 = sum(w2f(arenan2));
+          sbz1 = sum(w1f(areBelowZero1));
+          sbz2 = sum(w2f(areBelowZero2));
           
           legend([legendTitle1 ', w = ' num2str(sw1) ', #NaN: ' num2str(sn1),...
             ', #M<0: ' num2str(sbz1)],...
@@ -151,10 +148,15 @@ for k = doParticle
           hPomer = bar(x, (f2-f1)./f2 ,'k');
           set(hPomer(1),'BaseValue',1);
           saveas(h,[data{l}{1} '/' titl '.png']);
-          
+          end
         end
       end
     end
   end
 end
 
+for kk = 1:numResults
+  disp([res{kk,1} '_' res{kk,2} '_njets-' num2str(res{kk,3}),...
+            '_var-' num2str(res{kk,4}) '-' res{kk,5}.toString '_H=' num2str(res{kk,6}),...
+            '_pval=' num2str(res{kk,7}) '_stat=' num2str(res{kk,8})  ])
+end
