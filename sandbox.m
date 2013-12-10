@@ -84,4 +84,11 @@ tic
 toc
 % 28.5 hours
   
+x = -8:.1:8;
+y = x';
+X = ones(size(y))*x;
+Y = y*ones(size(x));
+R = sqrt(X.^2 + Y.^2) + eps;
+Z = sin(R)./R;
+imagesc(Z)
 
