@@ -1,4 +1,4 @@
-function res = makeHistograms(particleIn, njetsIn, doData)
+function res = makeTable(particleIn, njetsIn, doData)
 % makeHistograms(particleIn, njetsIn)
 %
 % particleIn: 1 ... ele, 2 ... muo
@@ -26,12 +26,27 @@ doNJets = njetsIn;
 
 weighted{1} = 1;
 %weighted{2} = 0;
-vars = [1:24];
-numResults = 0;
+
+vars = [1:23];
+if doParticle == 1
+  vars = [vars, 24]
+end
+
+%% headr of table 
+kk = 1;
 res = cell(24,8);
+res{kk,1} = 'PARTICLE';
+res{kk,2} = 'SETS';
+res{kk,3} = 'NJETS';
+res{kk,4} = 'VAR #';
+res{kk,5} = 'VAR NAME';
+res{kk,6} = 'H';
+res{kk,7} = 'PVAL';
+res{kk,8} = 'STAT';
+numResults = 1;
+
 for k = doParticle
   for l = doData
-    mkdir(data{l}{1});
     for m = doNJets
       for n = 1:length(weighted)
         njets = nJets{m};
@@ -95,11 +110,12 @@ for k = doParticle
           res{kk,2} = data{l}{1};
           res{kk,3} = njets;
           res{kk,4} = v;
-          res{kk,5} = leptonJetVar(v);
+          res{kk,5} = leptonJetVar(v).toString;
           res{kk,6} = hyp;
           res{kk,7} = pval;
           res{kk,8} = stat;
           
+          continue
           nbin1 = 60;
           
             [a, b] = currVar.histInterval(njets,k);
@@ -161,8 +177,8 @@ for k = doParticle
   end
 end
 
-for kk = 1:numResults
-  disp([res{kk,1} '_' res{kk,2} '_njets-' num2str(res{kk,3}),...
-            '_var-' num2str(res{kk,4}) '-' res{kk,5}.toString '_H=' num2str(res{kk,6}),...
-            '_pval=' num2str(res{kk,7}) '_stat=' num2str(res{kk,8})  ])
-end
+% for kk = 1:numResults
+%   disp([res{kk,1} '_' res{kk,2} '_njets-' num2str(res{kk,3}),...
+%             '_var-' num2str(res{kk,4}) '-' res{kk,5} '_H=' num2str(res{kk,6}),...
+%             '_pval=' num2str(res{kk,7}) '_stat=' num2str(res{kk,8})  ])
+% end
