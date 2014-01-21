@@ -29,10 +29,10 @@ weighted{1} = 1;
 
 vars = [1:23];
 if doParticle == 1
-  vars = [vars, 24]
+  vars = [vars, 24];
 end
 
-%% headr of table 
+%% headr of table
 kk = 1;
 res = cell(24,8);
 res{kk,1} = 'PARTICLE';
@@ -40,9 +40,13 @@ res{kk,2} = 'SETS';
 res{kk,3} = 'NJETS';
 res{kk,4} = 'VAR #';
 res{kk,5} = 'VAR NAME';
-res{kk,6} = 'H';
-res{kk,7} = 'PVAL';
-res{kk,8} = 'STAT';
+res{kk,6} = 'H KS';
+res{kk,7} = 'PVAL KS';
+res{kk,8} = 'STAT KS';
+res{kk,9} = 'H Cramer';
+res{kk,10} = 'PVAL Cramer';
+res{kk,11} = 'STAT Cramer';
+res{kk,12} = 'STAT Renyi';
 numResults = 1;
 
 for k = doParticle
@@ -73,10 +77,11 @@ for k = doParticle
           if njets == 2 && v == 5
             continue
           end
-          try
+          %try
+          
           numResults = numResults + 1;
           currVar = leptonJetVar(v);
-          
+          [a, b] = currVar.histInterval(njets,k);
           %[XX1, ww1] = cropVarToHistInterval(X1(:,v),w1,v);
           %[XX2, ww2] = cropVarToHistInterval(X2(:,v),w2,v);
           
@@ -89,6 +94,8 @@ for k = doParticle
           X2f = X2(~arenan2,v);
           
           % filter out negative for Masses
+          w1fbz = w1f;
+          w2fbz = w2f;
           if ismember(v,6:14)
             areBelowZero1 = X1f < 0;
             w1f = w1f(~areBelowZero1);
@@ -100,10 +107,27 @@ for k = doParticle
             areBelowZero1 = logical(zeros(size(w1f)));
             areBelowZero2 = logical(zeros(size(w2f)));
           end
+          
+          %% resampling
+          
+          
+          
           testType = 'kolm-smirn';
-          [hyp, pval, stat] = ...
+          [hypKS, pvalKS, statKS] = ...
             test1DEquality(X1f, w1f, X2f, w2f, testType);
-    %lepton, dataSet, nJets, var, H, pVal, stat 
+          testType = 'cramer';
+          [hypC, pvalC, statC] = ...
+            test1DEquality(X1f, w1f, X2f, w2f, testType);
+          testType = 'renyi';
+          nbins = [25, 50, 100, 200, 1000, 2000];
+          for ren = 1:length(nbins);
+            nbin = nbins(ren);
+            renyiAlpha = 0.3;
+           % [hypR, pvalR, statR{ren}] = ...
+            %  test1DEquality(X1f, w1f, X2f, w2f, testType, renyiAlpha, nbin, a, b);
+            statR{ren} = 0;
+          end
+          %lepton, dataSet, nJets, var, H, pVal, stat
           %[k, l, njets, v, hyp, pval, stat]
           kk = numResults;
           res{kk,1} = particle{k};
@@ -111,25 +135,32 @@ for k = doParticle
           res{kk,3} = njets;
           res{kk,4} = v;
           res{kk,5} = leptonJetVar(v).toString;
-          res{kk,6} = hyp;
-          res{kk,7} = pval;
-          res{kk,8} = stat;
+          res{kk,6} = hypKS;
+          res{kk,7} = pvalKS;
+          res{kk,8} = statKS;
+          res{kk,9} = hypC;
+          res{kk,10} = pvalC;
+          res{kk,11} = statC;
+          for ren = 1:length(nbins);
+            res{kk,11 + ren} = statR{ren};
+          end
           
-          continue
+         
+          %% sem uz to nedojde
           nbin1 = 60;
           
-            [a, b] = currVar.histInterval(njets,k);
-            %           max1 = max(X1f);
-            %           min1 = min(X1f);
-            %           d1 = (max1 - min1)/nbin1;
-            %           max2 = max(X2f);
-            %           min2 = min(X2f);
-            %           nbin2 = floor((max2-min2)/d1);
-            [f1, x1] = histwc(X1f, w1f,nbin1,a, b);
-            [f2, x2] = histwc(X2f, w2f,nbin1, a, b);
-            f2 = [f2; zeros(length(f1) - length(f2),1)];
-            f1 = [f1; zeros(length(f2) - length(f1),1)];
-            
+          
+          %           max1 = max(X1f);
+          %           min1 = min(X1f);
+          %           d1 = (max1 - min1)/nbin1;
+          %           max2 = max(X2f);
+          %           min2 = min(X2f);
+          %           nbin2 = floor((max2-min2)/d1);
+          [f1, x1] = histwc(X1f, w1f,nbin1,a, b);
+          [f2, x2] = histwc(X2f, w2f,nbin1, a, b);
+          f2 = [f2; zeros(length(f1) - length(f2),1)];
+          f1 = [f1; zeros(length(f2) - length(f1),1)];
+          
           x = x1;
           if length(x2) > length(x1)
             x = x2;
@@ -145,32 +176,35 @@ for k = doParticle
           vs = ' vs. ';
           legendTitle1 = data{l}{1}(1: strfind(data{l}{1}, vs)-1);
           legendTitle2 = data{l}{1}((strfind(data{l}{1}, vs) + length(vs)):end);
-          sw1 = floor(sum(w1f));
-          sw2 = floor(sum(w2f));
-          sn1 = sum(w1f(arenan1));
-          sn2 = sum(w2f(arenan2));
-          sbz1 = sum(w1f(areBelowZero1));
-          sbz2 = sum(w2f(areBelowZero2));
+          sw1 = sum(w1f);
+          sw2 = sum(w2f);
+          sn1 = sum(w1(arenan1));
+          sn2 = sum(w2(arenan2));
+          sbz1 = sum(w1fbz(areBelowZero1));
+          sbz2 = sum(w2fbz(areBelowZero2));
           
-          legend([legendTitle1 ', w = ' num2str(sw1) ', #NaN: ' num2str(sn1),...
+          legend([legendTitle1 ', w = ' num2str(floor(sw1)) ', #NaN: ' num2str(sn1),...
             ', #M<0: ' num2str(sbz1)],...
-            [legendTitle2  ', w = ' num2str(sw2) ', #NaN: ' num2str(sn2),...
+            [legendTitle2  ', w = ' num2str(floor(sw2)) ', #NaN: ' num2str(sn2),...
             ', #M<0: ' num2str(sbz2)])
           
           % Title
           vv= axis;
           titl = [particle{k}, '_ ', data{l}{1}, ' nJets: ', num2str(nJets{m}),...
-            ' weighted_ ',num2sstr(weighted{n}),' var_ ',num2str(v), ...
+            ' var  ',num2str(v), ...
             ' - ' currVar.toString];
-          th = title(sprintf([titl '\n H=' num2str(hyp) ', pval=',...
-            num2str(pval)])); %, 'EdgeColor','k');
+          title(sprintf([titl '\n pval=',...
+            num2str(pvalKS)])); %, 'EdgeColor','k');
           %set(th, 'Position',[vv(2)*0.45,vv(4)*0.7, 0])
           
           subplot(2,1,2)
-          hPomer = bar(x, (f2-f1)./f2 ,'k');
-          set(hPomer(1),'BaseValue',1);
+          title('Rozdil histogramu.')
+          hPomer = bar(x, (f2-f1),'k');
+          set(hPomer(1),'BaseValue',0);
+          
+          mkdir(data{l}{1});
           saveas(h,[data{l}{1} '/' titl '.png']);
-          end
+          %end
         end
       end
     end

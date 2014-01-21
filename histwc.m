@@ -45,8 +45,8 @@ for i=1:length(vv)
   ind = find(vinterval < vv(i), 1, 'last' );
   if ~isempty(ind)
     histw(ind) = histw(ind) + ww(i);
-  elseif vv(i) > vinterval(last)
-    histw(last) = histw(last) + ww(i);
+  elseif vv(i) > vinterval(end)
+    histw(end) = histw(end) + ww(i);
   end
 end
 

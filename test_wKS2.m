@@ -61,33 +61,33 @@ function [H, pVal, KSstatistic] = test_wKS2(x1, w1, x2, w2, varargin)
 %   Press, W.H., et. al., (1992) Numerical Recipes in C, Cambridge Univ. Press.
 
 if nargin < 2
-    error(message('stats:kstest2:TooFewInputs'));
+  error(message('stats:kstest2:TooFewInputs'));
 end
 
 % Parse optional inputs
 alpha = []; tail = [];
 if nargin >=5
-    if isnumeric(varargin{1})
-        % Old syntax
-        alpha = varargin{1};
-        if nargin == 6
-            tail = varargin{2};
-        end
-        
-    else
-        % New syntax
-        params = {'alpha', 'tail'};
-        dflts =  { []     , []};
-        
-        [alpha, tail] =...
-            internal.stats.parseArgs(params, dflts, varargin{:});
+  if isnumeric(varargin{1})
+    % Old syntax
+    alpha = varargin{1};
+    if nargin == 6
+      tail = varargin{2};
     end
+    
+  else
+    % New syntax
+    params = {'alpha', 'tail'};
+    dflts =  { []     , []};
+    
+    [alpha, tail] =...
+      internal.stats.parseArgs(params, dflts, varargin{:});
+  end
 end
 
 % Ensure each sample is a VECTOR.
 
 if ~isvector(x1) || ~isvector(x2)
-    error(message('stats:kstest2:VectorRequired'));
+  error(message('stats:kstest2:VectorRequired'));
 end
 
 % Remove missing observations indicated by NaN's, and
@@ -103,41 +103,41 @@ x1 = x1(:);
 x2 = x2(:);
 
 if isempty(x1)
-    error(message('stats:kstest2:NotEnoughData', 'X1'));
+  error(message('stats:kstest2:NotEnoughData', 'X1'));
 end
 
 if isempty(x2)
-    error(message('stats:kstest2:NotEnoughData', 'X2'));
+  error(message('stats:kstest2:NotEnoughData', 'X2'));
 end
 
 % Ensure the significance level, ALPHA, is a scalar
 % between 0 and 1 and set default if necessary.
 
 if ~isempty(alpha)
-    if ~isscalar(alpha) || (alpha <= 0 || alpha >= 1)
-        error(message('stats:kstest2:BadAlpha'));
-    end
+  if ~isscalar(alpha) || (alpha <= 0 || alpha >= 1)
+    error(message('stats:kstest2:BadAlpha'));
+  end
 else
-    alpha  =  0.05;
+  alpha  =  0.05;
 end
 
 % Ensure the type-of-test indicator, TYPE, is a scalar integer from
 % the allowable set, and set default if necessary.
 
 if ~isempty(tail)
-    if ischar(tail)
-        try
-            [~,tail] = internal.stats.getParamVal(tail, ...
-                {'smaller','unequal','larger'},'Type');
-        catch
-            error(message('stats:kstest2:BadTail'));
-        end
-        tail = tail - 2;
-    elseif ~isscalar(tail) || ~((tail==-1) || (tail==0) || (tail==1))
-        error(message('stats:kstest2:BadTail'));
+  if ischar(tail)
+    try
+      [~,tail] = internal.stats.getParamVal(tail, ...
+        {'smaller','unequal','larger'},'Type');
+    catch
+      error(message('stats:kstest2:BadTail'));
     end
+    tail = tail - 2;
+  elseif ~isscalar(tail) || ~((tail==-1) || (tail==0) || (tail==1))
+    error(message('stats:kstest2:BadTail'));
+  end
 else
-    tail  =  0;
+  tail  =  0;
 end
 
 % Calculate F1(x) and F2(x), the empirical (i.e., sample) CDFs.
@@ -149,14 +149,14 @@ sampleCDF2 = wECDF(x2,w2,x);
 % Compute the test statistic of interest.
 
 switch tail
-    case  0      %  2-sided test: T = max|F1(x) - F2(x)|.
-        deltaCDF  =  abs(sampleCDF1 - sampleCDF2);
-        
-    case -1      %  1-sided test: T = max[F2(x) - F1(x)].
-        deltaCDF  =  sampleCDF2 - sampleCDF1;
-        
-    case  1      %  1-sided test: T = max[F1(x) - F2(x)].
-        deltaCDF  =  sampleCDF1 - sampleCDF2;
+  case  0      %  2-sided test: T = max|F1(x) - F2(x)|.
+    deltaCDF  =  abs(sampleCDF1 - sampleCDF2);
+    
+  case -1      %  1-sided test: T = max[F2(x) - F1(x)].
+    deltaCDF  =  sampleCDF2 - sampleCDF1;
+    
+  case  1      %  1-sided test: T = max[F1(x) - F2(x)].
+    deltaCDF  =  sampleCDF1 - sampleCDF2;
 end
 
 KSstatistic   =  max(deltaCDF);
@@ -168,15 +168,16 @@ n1     =  length(x1);
 n2     =  length(x2);
 n      =  n1 * n2 /(n1 + n2);
 
-lambda =  max((sqrt(n) + 0.12 + 0.11/sqrt(n)) * KSstatistic , 0);
+lambda=  max((sqrt(n) + 0.12 + 0.11/sqrt(n)) * KSstatistic , 0);
+
 %lambdaAproxAndel = max(sqrt(n) * KSstatistic , 0);
 
 if tail ~= 0        % 1-sided test.
-    pVal  =  exp(-2 * lambda * lambda);
+  pVal  =  exp(-2 * lambda * lambda);
 else                % 2-sided test (default).
-    %  Use the asymptotic Q-function to approximate the 2-sided P-value.
-     pVal = lambda2pVal(lambda);
-%     pVal2 = lambda2pVal(lambdaAproxAndel)
+  %  Use the asymptotic Q-function to approximate the 2-sided P-value.
+  pVal = lambda2pVal(lambda);
+  %     pVal2 = lambda2pVal(lambdaAproxAndel)
 end
 
 H = alpha >= pVal;
@@ -184,8 +185,8 @@ H = alpha >= pVal;
 end
 
 function pVal = lambda2pVal(lambda)
-    j       =  (1:101)';
-    jj = (-1).^(j-1).*exp(-2 * lambda*lambda * j.^2);
-    pVal  =  2 * sum(jj); % = K
-    pVal  =  min(max(pVal, 0), 1); % pValue in <0,1>
+j       =  (1:101)';
+jj = (-1).^(j-1).*exp(-2 * lambda*lambda * j.^2);
+pVal  =  2 * sum(jj); % = K
+pVal  =  min(max(pVal, 0), 1); % pValue in <0,1>
 end
