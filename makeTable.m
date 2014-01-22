@@ -79,11 +79,10 @@ for k = doParticle
           if njets == 2 && v == 5
             continue
           end
-          %try
-          
+          try
           numResults = numResults + 1;
           currVar = leptonJetVar(v);
-          [a, b] = currVar.histInterval(njets,k);
+          
           %[XX1, ww1] = cropVarToHistInterval(X1(:,v),w1,v);
           %[XX2, ww2] = cropVarToHistInterval(X2(:,v),w2,v);
           
@@ -96,8 +95,6 @@ for k = doParticle
           X2f = X2(~arenan2,v);
           
           % filter out negative for Masses
-          w1fbz = w1f;
-          w2fbz = w2f;
           if ismember(v,6:14)
             areBelowZero1 = X1f < 0;
             w1f = w1f(~areBelowZero1);
