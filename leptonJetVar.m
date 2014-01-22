@@ -78,6 +78,15 @@ classdef leptonJetVar < uint8
     function n = numTypes()
       n = 25;
     end
+    function all = getAllStrings()
+      % returns vector of all types without data
+      n =24;% leptonJetVar.numTypes;
+      all = cell(n-1,1);
+      for k = 1:n-1
+        aaa = leptonJetVar(k);
+        all{k} = aaa.toString;
+      end
+    end
   end
 end
 

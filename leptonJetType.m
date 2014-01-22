@@ -17,7 +17,7 @@ classdef leptonJetType < uint8
     ZbbEE (12),
     ZbbTauTau (13),
     ZccEE (14),
-    ZccTauTau (15)
+    ZccTauTau (15),
     ZlpEE (16),
     ZlpTauTau (17),
     ZZ (18)

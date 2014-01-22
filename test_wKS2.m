@@ -164,23 +164,37 @@ KSstatistic   =  max(deltaCDF);
 % Compute the asymptotic P-value approximation and accept or
 % reject the null hypothesis on the basis of the P-value.
 
-n1     =  length(x1);
-n2     =  length(x2);
+n1     =  sum(w1);
+n2     =  sum(w2);
 n      =  n1 * n2 /(n1 + n2);
+z = sqrt(n) * KSstatistic;
 
-lambda=  max((sqrt(n) + 0.12 + 0.11/sqrt(n)) * KSstatistic , 0);
+ fj = [-2,-8,-18,-32];
+ w = 2.50662827;
 
-%lambdaAproxAndel = max(sqrt(n) * KSstatistic , 0);
-
-if tail ~= 0        % 1-sided test.
-  pVal  =  exp(-2 * lambda * lambda);
-else                % 2-sided test (default).
-  %  Use the asymptotic Q-function to approximate the 2-sided P-value.
-  pVal = lambda2pVal(lambda);
-  %     pVal2 = lambda2pVal(lambdaAproxAndel)
-end
-
-H = alpha >= pVal;
+c = [-1.2337005501361697, -11.103304951225528, -30.842513753404244]; 
+   
+   u = abs(z);
+   
+   if u < 0.2
+      p = 1;
+   elseif u < 0.755
+      v = 1/(u*u);
+      p = 1 - w*(exp(c(1)*v) + exp(c(2)*v) + exp(c(3)*v))/u;
+   elseif (u < 6.8116)
+      v = u*u;
+      maxj = max(1,round(3./u));
+      r = zeros(4,1);
+      for j=1:maxj+1
+         r(j) = exp(fj(j)*v);
+      end
+      p = 2*(r(1) - r(2) +r(3) - r(4));
+   else
+      p = 0;
+   end
+   
+   pVal = p;
+   H = alpha >=p;
 
 end
 
