@@ -138,7 +138,7 @@ end
 %
 % Compute the test statistic of interest.
 %
-CMstatistic  =  N1*N2/N^2 *  sum((sampleCDF1 - sampleCDF2).^2);
+CMstatistic  =  N1*N2/N^2*sum((sampleCDF1 - sampleCDF2).^2);
 
 % table of the limiting distribution, taken from (2)
 z=[
@@ -170,6 +170,8 @@ CM_limiting_stat =  ( CMstatistic - T_mean ) / sqrt(45*T_var) + 1/6;
 % interpolate
 if CM_limiting_stat > z(end)
 	pValue=1;
+elseif CM_limiting_stat < z(1)
+	pValue=0;
 else
 	pValue = interp1(z,Pz,CM_limiting_stat,'linear');
 end
