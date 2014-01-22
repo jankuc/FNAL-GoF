@@ -127,8 +127,8 @@ x =  sort(union(x1,x2));
 sampleCDF1 = wECDF(x1,w1,x);
 sampleCDF2 = wECDF(x2,w2,x);
 
-N1=length(x1);
-N2=length(x2);
+N1=sum(w1);
+N2=sum(w2);
 N=N1+N2;
 
 if verbose
