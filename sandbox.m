@@ -92,3 +92,9 @@ R = sqrt(X.^2 + Y.^2) + eps;
 Z = sin(R)./R;
 imagesc(Z)
 
+
+for k = 1:6
+  for var = 1:23
+    found(var,k) = find(A(:,k)==var);
+  end
+end

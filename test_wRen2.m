@@ -1,4 +1,6 @@
-function [H, pValue, stat] = test_wRen2(x1, w1, x2, w2, a, varargin)
+function [H, pValue, stat] = test_wRen2(x1,x2, w1,w2, a, nbin, aa, bb,  varargin)
+% test_wRen2(x1,x2, w1,w2, a, nbin, aa, bb,  varargin)
+%
 %	wRenTest2 Two-sample Renyi goodness-of-fit hypothesis test.
 %   H = test_wRen2(X1,w1,X2,w2) performs a Kolmogorov-Smirnov (K-S) test
 %   to determine if independent random samples, X1 and X2, are drawn from
@@ -52,7 +54,7 @@ function [H, pValue, stat] = test_wRen2(x1, w1, x2, w2, a, varargin)
 % Copyright 1993-2012 The MathWorks, Inc.
 
 
-% References:
+%% References:
 %   Massey, F.J., (1951) "The Kolmogorov-Smirnov Test for Goodness of Fit",
 %         Journal of the American Statistical Association, 46(253):68-78.
 %   Miller, L.H., (1956) "Table of Percentage Points of Kolmogorov Statistics",
@@ -67,7 +69,7 @@ if nargin < 2
 	error(message('stats:kstest2:TooFewInputs'));
 end
 
-% Parse optional inputs
+%% Parse optional inputs
 alpha = []; tail = [];
 if nargin >=6
 	if isnumeric(varargin{1})
@@ -79,7 +81,7 @@ if nargin >=6
 		
 	else
 		% New syntax
-		params = {'alpha', 'tail'};
+		params = {'alpha', 'lepJetVar'};
 		dflts =  { []     , []};
 		
 		[alpha, tail] =...
@@ -89,7 +91,7 @@ end
 
 
 %
-% Ensure each sample is a VECTOR.
+%% Ensure each sample is a VECTOR.
 %
 
 if ~isvector(x1) || ~isvector(x2)
@@ -97,7 +99,7 @@ if ~isvector(x1) || ~isvector(x2)
 end
 
 %
-% Remove missing observations indicated by NaN's, and
+%% Remove missing observations indicated by NaN's, and
 % ensure that valid observations remain.
 %
 
@@ -115,7 +117,7 @@ if isempty(x2)
 end
 
 %
-% Ensure the significance level, ALPHA, is a scalar
+%% Ensure the significance level, ALPHA, is a scalar
 % between 0 and 1 and set default if necessary.
 %
 
@@ -128,24 +130,31 @@ else
 end
 
 %
-% Calculate f1(x) and f2(x), the empirical (i.e., sample) PDFs.
+%% Calculate f1(x) and f2(x), the empirical (i.e., sample) PDFs.
 %
 
-x = sort(union(x1,x2));
+% x = sort(union(x1,x2));
 
-n1 = length(x1);
-n2 = length(x2);
-%n = ceil(n1 * n2 /(n1 + n2));
-%n = ceil(mean([n1, n2])); % number of bins for histogram
-n = min(n1,n2);
-[ePDF1, xNew1] = wEPDF(x1,w1,x,n);
-[ePDF2, xNew2] = wEPDF(x2,w2,x,n);
+% n1 = length(x1);
+% n2 = length(x2);
+% %n = ceil(n1 * n2 /(n1 + n2));
+% %n = ceil(mean([n1, n2])); % number of bins for histogram
+% n = min(n1,n2);
+% [ePDF1, xNew1] = wEPDF(x1,w1,x,n);
+% [ePDF2, xNew2] = wEPDF(x2,w2,x,n);
 
 
 
-if sum(xNew1 ~= xNew2) > 0
-	error('wEPDF does not function properly.');
-end
+[ePDF1, x1] = histwc(x1, w1,nbin, aa, bb);
+[ePDF2, x2] = histwc(x2, w2,nbin, aa, bb);
+ePDF1 = ePDF1/sum(ePDF1);
+ePDF2 = ePDF2/sum(ePDF2);
+ePDF1(ePDF1<=0) = 1e-8;
+ePDF2(ePDF2<=0) = 1e-8;
+
+% if sum(xNew1 ~= xNew2) > 0
+% 	error('wEPDF does not function properly.');
+% end
 
 
 
@@ -160,25 +169,7 @@ end
 k = length(ePDF1);
 doubleSum = sum((ePDF1.^a) .* (ePDF2.^(1-a)));
 logOfSum = log(doubleSum);
-const =2*n/(a*(a-1)); 
+const =2*nbin/(a*(a-1)); 
 stat = const * logOfSum;
-
-chiQuant1 = icdf('chi2', alpha/2, k - 1);
-chiQuant2 = icdf('chi2',1 - alpha/2, k - 1);
-
-%
-% Compute the asymptotic P-value approximation and accept or
-% reject the null hypothesis on the basis of the P-value.
-%
-
-lambda =  max((sqrt(n) + 0.12 + 0.11/sqrt(n)) * stat , 0);
-
-    % 2-sided test (default).
-	%
-	%  Use the asymptotic Q-function to approximate the 2-sided P-value.
-	%
-	j       =  (1:101)';
-	pValue  =  2 * sum((-1).^(j-1).*exp(-2*lambda*lambda*j.^2));
-	pValue  =  min(max(pValue, 0), 1);
-	
-H  =  (alpha >= pValue);
+H = nan;
+pValue = nan;
