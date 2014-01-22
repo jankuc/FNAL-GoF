@@ -49,16 +49,18 @@ res{kk,11} = 'STAT Cramer';
 res{kk,12} = 'STAT Renyi';
 numResults = 1;
 
+try leptonJetData = evalin( 'base', 'leptonJetData' );
+catch
+  leptonJetData = leptonJetsMat2Ram();
+  assignin('base', 'leptonJetData', leptonJetData);
+end
+
 for k = doParticle
   for l = doData
     for m = doNJets
+      njets = nJets{m};
       for n = 1:length(weighted)
-        njets = nJets{m};
-        try leptonJetData = evalin( 'base', 'leptonJetData' );
-        catch
-          leptonJetData = leptonJetsMat2Ram();
-          assignin('base', 'leptonJetData', leptonJetData);
-        end
+        
         [X1, w1] = getLeptonJetsRamData(particle{k}, 1:leptonJetType.numTypes,...
           'njets', nJets{m}, data{l}{2}, data{l}{3});
         [X2, w2] = getLeptonJetsRamData(particle{k}, 1:leptonJetType.numTypes,...
@@ -123,7 +125,7 @@ for k = doParticle
           for ren = 1:length(nbins);
             nbin = nbins(ren);
             renyiAlpha = 0.3;
-           % [hypR, pvalR, statR{ren}] = ...
+            % [hypR, pvalR, statR{ren}] = ...
             %  test1DEquality(X1f, w1f, X2f, w2f, testType, renyiAlpha, nbin, a, b);
             statR{ren} = 0;
           end
@@ -145,7 +147,7 @@ for k = doParticle
             res{kk,11 + ren} = statR{ren};
           end
           
-         
+          
           %% sem uz to nedojde
           nbin1 = 60;
           
@@ -201,11 +203,13 @@ for k = doParticle
           title('Rozdil histogramu.')
           hPomer = bar(x, (f2-f1),'k');
           set(hPomer(1),'BaseValue',0);
-          
+          drawnow
           mkdir(data{l}{1});
           saveas(h,[data{l}{1} '/' titl '.png']);
           %end
+          close all  
         end
+        
       end
     end
   end
