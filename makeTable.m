@@ -1,5 +1,5 @@
 function res = makeTable(particleIn, njetsIn, doData)
-% makeHistograms(particleIn, njetsIn)
+% function res = makeTable(particleIn, njetsIn, doData)
 %
 % particleIn: 1 ... ele, 2 ... muo
 % njetsIn: 2,3,4
@@ -27,7 +27,7 @@ doNJets = njetsIn;
 weighted{1} = 1;
 %weighted{2} = 0;
 
-vars = [1:23];
+vars = 1:23;
 if doParticle == 1
   vars = [vars, 24];
 end
@@ -114,18 +114,21 @@ for k = doParticle
             testType = 'kolm-smirn';
             [hypKS, pvalKS, statKS] = ...
               test1DEquality(X1f, w1f, X2f, w2f, testType);
+            
             testType = 'cramer';
             [hypC, pvalC, statC] = ...
               test1DEquality(X1f, w1f, X2f, w2f, testType);
-            testType = 'renyi';
-            nbins = [25, 50, 100, 200, 1000, 2000];
-            for ren = 1:length(nbins);
-              nbin = nbins(ren);
-              renyiAlpha = 0.3;
-              % [hypR, pvalR, statR{ren}] = ...
-              %  test1DEquality(X1f, w1f, X2f, w2f, testType, renyiAlpha, nbin, a, b);
-              statR{ren} = 0;
-            end
+            
+%             testType = 'renyi';
+%             nbins = [25, 50, 100, 200, 1000, 2000];
+%             for ren = 1:length(nbins);
+%               nbin = nbins(ren);
+%               renyiAlpha = 0.3;
+%               [hypR, pvalR, statR{ren}] = ...
+%               test1DEquality(X1f, w1f, X2f, w2f, testType, renyiAlpha, nbin, a, b);
+%               statR{ren} = 0;
+%             end
+            
             %lepton, dataSet, nJets, var, H, pVal, stat
             %[k, l, njets, v, hyp, pval, stat]
             kk = numResults;
@@ -144,11 +147,8 @@ for k = doParticle
               res{kk,11 + ren} = statR{ren};
             end
             
-            
-            %% sem uz to nedojde
+            %% Histograms
             nbin1 = 60;
-            
-            
             %           max1 = max(X1f);
             %           min1 = min(X1f);
             %           d1 = (max1 - min1)/nbin1;
@@ -206,7 +206,7 @@ for k = doParticle
             %end
             close all
           end
-          
+        end
         end
       end
     end
