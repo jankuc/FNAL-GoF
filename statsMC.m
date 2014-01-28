@@ -34,9 +34,10 @@ for k = doParticle
     resStat{lineNum,2} = 'W train';
     resStat{lineNum,3} = 'W test';
     resStat{lineNum,4} = 'W yield';
-    resStat{lineNum,5} = 'N train';
-    resStat{lineNum,6} = 'N test';
-    resStat{lineNum,7} = 'N yield';
+    resStat{lineNum,5} = '% of yield w_i in MC';
+    resStat{lineNum,6} = 'N train';
+    resStat{lineNum,7} = 'N test';
+    resStat{lineNum,8} = 'N yield';
     lineNum = lineNum + 1;
     end
     for l = 2:18
@@ -55,31 +56,37 @@ for k = doParticle
       line{2} = sum(w1);
       line{3} = sum(w2);
       line{4} = sum(w3);
-      line{5} = numel(w1);
-      line{6} = numel(w2);
-      line{7} = numel(w3);
+      %line{5} = 
+      line{6} = numel(w1);
+      line{7} = numel(w2);
+      line{8} = numel(w3);
       
       resStat{lineNum,1} = num2str(line{1});
-      for kk = 2:7
+      for kk = [2:4,6:8]
         resStat{lineNum,kk} = num2str(line{kk});
       end
       lineNum = lineNum + 1;
     end
     %sum
     resStat{lineNum,1} = 'MC';
-    for kk = 2:7
-      suma = 0;
+    for kk = [2:4,6:8]
       for kl=1:17
-        suma = suma + str2num(resStat{lineNum-kl,kk});
+        w(18-kl,kk) = str2num(resStat{lineNum-kl,kk});
       end
-      resStat{lineNum,kk} = num2str(suma);
+      resStat{lineNum,kk} = num2str(sum(w(:,kk)));
     end
+    
+    for l = 1:17
+      percentage(l) =  sum(w(end-l +1,4))/sum(w(:,4))*100;
+      resStat{lineNum-l, 5} = num2str(percentage(l));
+    end
+    
     lineNum = lineNum + 1;
     % data
     resStat{lineNum,1} = 'data';
     [X4, w4] = getLeptonJetsRamData(particle{k},1,'njets',nJets{m},'val',3);
-    resStat{lineNum,4} = sum(w4);
-    resStat{lineNum,5} = num2str(str2num(resStat{lineNum,4})/str2num(resStat{lineNum-1,4}));
+    resStat{lineNum,4} = num2str(sum(w4));
+    resStat{lineNum,5} = num2str(100*str2num(resStat{lineNum,4})/str2num(resStat{lineNum-1,4}));
     resStat{lineNum,6} = '%';
     resStat{lineNum,7} = numel(w4);
     lineNum = lineNum + 1;

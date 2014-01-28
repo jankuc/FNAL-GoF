@@ -51,7 +51,7 @@ for k = 1:length(dirListing)
     end
     fclose(fid);
     
-    if ~isempty( strfind(filename{k},'data.txt'))
+    if ~isempty( strfind(filename{k},'data_miniTree'))
     % change flag of 'train' and 'val' of data to 3
         X(:,end) = 3;
         X(:,end-1) = 3;
