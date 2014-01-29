@@ -164,8 +164,8 @@ KSstatistic   =  max(deltaCDF);
 % Compute the asymptotic P-value approximation and accept or
 % reject the null hypothesis on the basis of the P-value.
 
-n1     =  sum(w1);
-n2     =  sum(w2);
+n1     =  length(x1);
+n2     =  length(x2);
 n      =  n1 * n2 /(n1 + n2);
 
 lambda=  max((sqrt(n) + 0.12 + 0.11/sqrt(n)) * KSstatistic , 0);
