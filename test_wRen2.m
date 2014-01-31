@@ -1,163 +1,60 @@
-function [H, pValue, stat] = test_wRen2(x1,x2, w1,w2, a, nbin, aa, bb,  varargin)
-% test_wRen2(x1,x2, w1,w2, a, nbin, aa, bb,  varargin)
+function [H, pValue, stat] = test_wRen2(x1,x2, w1,w2, a, pdfEstType, nbin, ...
+                                        aa, bb, varargin)
+% 
+% [H, pValue, stat] = test_wRen2(x1,x2, w1,w2, a, nbin, par1, par2,  varargin)
 %
-%	wRenTest2 Two-sample Renyi goodness-of-fit hypothesis test.
-%   H = test_wRen2(X1,w1,X2,w2) performs a Kolmogorov-Smirnov (K-S) test
-%   to determine if independent random samples, X1 and X2, are drawn from
-%   the same underlying continuous population. H indicates the result of
-%   the hypothesis.
-%	a ... parametere for Renyi divergence
 %
-%   test:
-%      H = 0 => Do not reject the null hypothesis at the 5% significance level.
-%      H = 1 => Reject the null hypothesis at the 5% significance level.
+% a             renyi alpha
+% pdfEstType    'hist'/'kernel'
 %
-%   Let S1(x) and S2(x) be the empirical distribution functions from the
-%   sample vectors X1 and X2, respectively, and F1(x) and F2(x) be the
-%   corresponding true (but unknown) population CDFs. The two-sample K-S
-%   test tests the null hypothesis that F1(x) = F2(x) for all x, against the
-%   alternative that they are unequal.
+% HISTOGRAM
+% nbin          number of bins
+% aa             start of first bin 
+% bb             end of last bin
 %
-%   The decision to reject the null hypothesis occurs when the significance
-%   level equals or exceeds the P-value.
+% KERNEL
+% nbin          number of evaluation points for kernel
+% aa            start of first bin 
+% bb             end of last bin
 %
-%   X1 and X2 are vectors of lengths N1 and N2, respectively, and represent
-%   random samples from some underlying distribution(s). Missing
-%   observations, indicated by NaNs (Not-a-Number), are ignored.
 %
-%   [H,P] = KSTEST2(...) also returns the asymptotic P-value P.
+% Varargin
+% kernelType    type of kernel. See also ksdensity.
+% width         width of kernel. See also ksdensity.
 %
-%   [H,P,KSSTAT] = KSTEST2(...) also returns the K-S test statistic KSSTAT
-%   defined above for the test type indicated by TYPE.
+% alpha         test significance level - NOT SUPPORTED due to
+%                         lack of theory for testing
 %
-%   The asymptotic P-value becomes very accurate for large sample sizes, and
-%   is believed to be reasonably accurate for sample sizes N1 and N2 such
-%   that (N1*N2)/(N1 + N2) >= 4.
-%
-%   [...] = KSTEST2(X,Y,'PARAM1',val1,'PARAM2',val2,...) specifies one or
-%   more of the following name/value pairs:
-%
-%       Parameter       Value
-%       'alpha'         A value ALPHA between 0 and 1 specifying the
-%                       significance level. Default is 0.05 for 5% significance.
-%       'type'          A string indicating the type of test:
-%          'unequal' -- "F1(x) not equal to F2(x)" (two-sided test) (Default)
-%          'larger'  -- "F1(x) > F2(x)" (one-sided test)
-%          'smaller' -- "F1(x) < F2(x)" (one-sided test)
-%       For TYPE = 'unequal', 'larger', and 'smaller', the test statistics are
-%       max|S1(x) - S2(x)|, max[S1(x) - S2(x)], and max[S2(x) - S1(x)],
-%       respectively.
-%
-%   See also KSTEST, LILLIETEST, CDFPLOT.
-%
+%   See also test_wKS2, test_wCM2, ksdensity, histwc.
 
-% Copyright 1993-2012 The MathWorks, Inc.
-
-
-%% References:
-%   Massey, F.J., (1951) "The Kolmogorov-Smirnov Test for Goodness of Fit",
-%         Journal of the American Statistical Association, 46(253):68-78.
-%   Miller, L.H., (1956) "Table of Percentage Points of Kolmogorov Statistics",
-%         Journal of the American Statistical Association, 51(273):111-121.
-%   Stephens, M.A., (1970) "Use of the Kolmogorov-Smirnov, Cramer-Von Mises and
-%         Related Statistics Without Extensive Tables", Journal of the Royal
-%         Statistical Society. Series B, 32(1):115-122.
-%   Conover, W.J., (1980) Practical Nonparametric Statistics, Wiley.
-%   Press, W.H., et. al., (1992) Numerical Recipes in C, Cambridge Univ. Press.
-
-if nargin < 2
-	error(message('stats:kstest2:TooFewInputs'));
-end
-
-%% Parse optional inputs
-alpha = []; tail = [];
-if nargin >=6
-	if isnumeric(varargin{1})
-		% Old syntax
-		alpha = varargin{1};
-		if nargin == 7
-			tail = varargin{2};
-		end
-		
-	else
-		% New syntax
-		params = {'alpha', 'lepJetVar'};
-		dflts =  { []     , []};
-		
-		[alpha, tail] =...
-			internal.stats.parseArgs(params, dflts, varargin{:});
-	end
-end
-
-
-%
-%% Ensure each sample is a VECTOR.
-%
-
-if ~isvector(x1) || ~isvector(x2)
-	error(message('stats:kstest2:VectorRequired'));
-end
-
-%
-%% Remove missing observations indicated by NaN's, and
-% ensure that valid observations remain.
-%
-
-x1  =  x1(~isnan(x1));
-x2  =  x2(~isnan(x2));
-x1  =  x1(:);
-x2  =  x2(:);
-
-if isempty(x1)
-	error(message('stats:kstest2:NotEnoughData', 'X1'));
-end
-
-if isempty(x2)
-	error(message('stats:kstest2:NotEnoughData', 'X2'));
-end
-
-%
-%% Ensure the significance level, ALPHA, is a scalar
-% between 0 and 1 and set default if necessary.
-%
-
-if ~isempty(alpha)
-	if ~isscalar(alpha) || (alpha <= 0 || alpha >= 1)
-		error(message('stats:kstest2:BadAlpha'));
-	end
-else
-	alpha  =  0.05;
-end
 
 %
 %% Calculate f1(x) and f2(x), the empirical (i.e., sample) PDFs.
 %
-
-% x = sort(union(x1,x2));
-
-% n1 = length(x1);
-% n2 = length(x2);
-% %n = ceil(n1 * n2 /(n1 + n2));
-% %n = ceil(mean([n1, n2])); % number of bins for histogram
-% n = min(n1,n2);
-% [ePDF1, xNew1] = wEPDF(x1,w1,x,n);
-% [ePDF2, xNew2] = wEPDF(x2,w2,x,n);
-
-
-
-[ePDF1, x1] = histwc(x1, w1,nbin, aa, bb);
-[ePDF2, x2] = histwc(x2, w2,nbin, aa, bb);
-ePDF1 = ePDF1/sum(ePDF1);
-ePDF2 = ePDF2/sum(ePDF2);
+switch pdfEstType
+  case 'hist'
+    [ePDF1, x] = histwc(x1, w1,nbin, aa, bb);
+    [ePDF2, x] = histwc(x2, w2,nbin, aa, bb);
+  case 'kernel'
+    % define shared x
+    [x1, w1] = reweightDataToInterval(x1, w1, aa, bb);
+    [x2, w2] = reweightDataToInterval(x2, w2, aa, bb);
+    x = aa : (bb-aa)/nbin : bb;
+    % nbin is already specified in x
+    if ~isempty(varargin)
+      [ePDF1] = ksdensity(x1, x, 'kernel', varargin{1},...
+                            'width', varargin{2}, 'weights', w1);
+      [ePDF2] = ksdensity(x2, x, 'kernel', varargin{1},...
+                            'width', varargin{2}, 'weights', w2);
+    else
+      [ePDF1] = ksdensity(x1, x, 'weights', w1);
+      [ePDF2] = ksdensity(x2, x, 'weights', w2);
+    end
+end
 ePDF1(ePDF1<=0) = 1e-8;
 ePDF2(ePDF2<=0) = 1e-8;
-
-% if sum(xNew1 ~= xNew2) > 0
-% 	error('wEPDF does not function properly.');
-% end
-
-
-
+ePDF1 = ePDF1/sum(ePDF1);
+ePDF2 = ePDF2/sum(ePDF2);
 
 %
 % Compute the test statistic of interest.

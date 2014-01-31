@@ -44,7 +44,7 @@ function [H, pVal, KSstatistic] = test_wKS2(x1, w1, x2, w2, varargin)
 %       max|S1(x) - S2(x)|, max[S1(x) - S2(x)], and max[S2(x) - S1(x)],
 %       respectively.
 %
-%   See also KSTEST, LILLIETEST, CDFPLOT.
+%   See also KSTEST, LILLIETEST, CDFPLOT, test_wCM2.
 %
 %
 % Copyright 1993-2012 The MathWorks, Inc.

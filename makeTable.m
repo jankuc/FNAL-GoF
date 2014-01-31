@@ -106,29 +106,31 @@ for k = doParticle
               areBelowZero1 = logical(zeros(size(w1f)));
               areBelowZero2 = logical(zeros(size(w2f)));
             end
-            
-            %% resampling
-            
+            [a, b] = currVar.histInterval(njets, k);            
             
             
+            %% TESTS
+            if 0
             testType = 'kolm-smirn';
             [hypKS, pvalKS, statKS] = ...
-              test1DEquality(X1f, w1f, X2f, w2f, testType);
+              test1DEquality(X1f, w1f, X2f, w2f, testType, alpha);
             
             testType = 'cramer';
             [hypC, pvalC, statC] = ...
-              test1DEquality(X1f, w1f, X2f, w2f, testType);
+              test1DEquality(X1f, w1f, X2f, w2f, testType, alpha);
             
-%             testType = 'renyi';
-%             nbins = [25, 50, 100, 200, 1000, 2000];
-%             for ren = 1:length(nbins);
-%               nbin = nbins(ren);
-%               renyiAlpha = 0.3;
-%               [hypR, pvalR, statR{ren}] = ...
-%               test1DEquality(X1f, w1f, X2f, w2f, testType, renyiAlpha, nbin, a, b);
-%               statR{ren} = 0;
-%             end
+            testType = 'renyi';
+            nbins = [40, 50, 100, 200];
+            for ren = 1:length(nbins);
+              nbin = nbins(ren);
+              renyiAlpha = 0.3;
+              [hypR, pvalR, statR{ren}] = ...
+              test1DEquality(X1f, w1f, X2f, w2f, testType, renyiAlpha,'hist', nbin, a, b);
+              statR{ren} = 0;
+            end
             
+            
+            %%
             %lepton, dataSet, nJets, var, H, pVal, stat
             %[k, l, njets, v, hyp, pval, stat]
             kk = numResults;
@@ -146,23 +148,29 @@ for k = doParticle
             for ren = 1:length(nbins);
               res{kk,11 + ren} = statR{ren};
             end
-            
+            end
             %% Histograms
-            nbin1 = 60;
-            %           max1 = max(X1f);
-            %           min1 = min(X1f);
-            %           d1 = (max1 - min1)/nbin1;
-            %           max2 = max(X2f);
-            %           min2 = min(X2f);
-            %           nbin2 = floor((max2-min2)/d1);
-            [f1, x1] = histwc(X1f, w1f,nbin1,a, b);
-            [f2, x2] = histwc(X2f, w2f,nbin1, a, b);
-            f2 = [f2; zeros(length(f1) - length(f2),1)];
-            f1 = [f1; zeros(length(f2) - length(f1),1)];
-            
-            x = x1;
-            if length(x2) > length(x1)
-              x = x2;
+            nbins = [15, 22, 30, 40, 50, 100, 200];
+            [a, b] = currVar.histInterval(njets,k);
+            for ren = 1:length(nbins);
+              nbin = nbins(ren);
+              %           max1 = max(X1f);
+              %           min1 = min(X1f);
+              %           d1 = (max1 - min1)/nbin;
+              %           max2 = max(X2f);
+              %           min2 = min(X2f);
+              %           nbin2 = floor((max2-min2)/d1);
+              [f1, x1] = histwc(X1f, w1f,nbin,a, b);
+              [f2, x2] = histwc(X2f, w2f,nbin,a, b);
+              f2 = [f2; zeros(length(f1) - length(f2),1)];
+              f1 = [f1; zeros(length(f2) - length(f1),1)];
+              
+              x = x1;
+              if length(x2) > length(x1)
+                x = x2;
+              end
+              figure;
+              bar(x,[f1 f2], 0.9, 'LineStyle', 'none')
             end
             
             %% figure
