@@ -1,5 +1,5 @@
 function [h, p, stat] = test1DEquality(x1, w1, x2, w2, type, varargin)
-% [h p stat] = test1DEquality(x1, w1, x2, w2, type)
+% [h p stat] = test1DEquality(x1, w1, x2, w2, type, varargin)
 %
 %	alpha = 0.01;
 %
@@ -8,13 +8,15 @@ function [h, p, stat] = test1DEquality(x1, w1, x2, w2, type, varargin)
 %         ranksumsss
 %         kstest2
 %         renyi
-%           followed by:
-%             a ... parameter of robustness
- %            pdfEstType .... 'hist', 'kernel'
-%             nbin ... number of bins for histogram
-%             aa ... start of the histogram interval
-%             bb ... end of the histogram interval
-%			tAlpha		a = 2
+%             a             parameter of robustness
+%             pdfEstType    'hist' / 'kernel'
+%             nbin          number of bins
+%             aa            start of the  interval
+%             bb            end of the  interval
+%             optional (ksdensity)
+%               kernelType
+%               kernelWidth
+%             
 
 w1 = w1(~isnan(x1));
 x1 = x1(~isnan(x1));
@@ -49,11 +51,19 @@ switch type
 %     a = varargin{1}; % Renyi alpha
 %     pdfEstType = varargin{2};
 %     nbin = varargin{3};
-%     par1 = varargin{4}; a...histograms, kernelType...ksdensity
-%     par2 = varargin{5}; b...histograms, width...ksdensity
+%     aa .... 4
+ %    bb ... 5
+%     par1 = varargin{6}; kernelType...ksdensity
+%     par2 = varargin{7}; width...ksdensity
+    if length(varargin) > 5
     [h, p, stat] = ...
       test_wRen2(x1,x2, w1,w2, varargin{1}, varargin{2}, varargin{3},...
-      varargin{4}, varargin{5}, alpha);
+      varargin{4}, varargin{5},varargin{6}, varargin{7});
+    else
+      [h, p, stat] = ...
+      test_wRen2(x1,x2, w1,w2, varargin{1}, varargin{2}, varargin{3},...
+      varargin{4}, varargin{5});
+    end
     
     % elseif strcmp(type,'renyi')
     % 	a = 0.3; %/ Renyi parameter

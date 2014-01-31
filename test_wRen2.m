@@ -1,7 +1,7 @@
 function [H, pValue, stat] = test_wRen2(x1,x2, w1,w2, a, pdfEstType, nbin, ...
                                         aa, bb, varargin)
 % 
-% [H, pValue, stat] = test_wRen2(x1,x2, w1,w2, a, nbin, par1, par2,  varargin)
+% [H, pValue, stat] = test_wRen2(x1, x2, w1, w2, a, pdfEstType, nbin, aa, bb, varargin)
 %
 %
 % a             renyi alpha
@@ -33,8 +33,8 @@ function [H, pValue, stat] = test_wRen2(x1,x2, w1,w2, a, pdfEstType, nbin, ...
 %
 switch pdfEstType
   case 'hist'
-    [ePDF1, x] = histwc(x1, w1,nbin, aa, bb);
-    [ePDF2, x] = histwc(x2, w2,nbin, aa, bb);
+    [ePDF1, ~] = histwc(x1, w1, nbin, aa, bb);
+    [ePDF2, ~] = histwc(x2, w2, nbin, aa, bb);
   case 'kernel'
     % define shared x
     [x1, w1] = reweightDataToInterval(x1, w1, aa, bb);
@@ -66,7 +66,7 @@ end
 k = length(ePDF1);
 doubleSum = sum((ePDF1.^a) .* (ePDF2.^(1-a)));
 logOfSum = log(doubleSum);
-const =2*nbin/(a*(a-1)); 
+const =1/(a-1); 
 stat = const * logOfSum;
 H = nan;
 pValue = nan;
