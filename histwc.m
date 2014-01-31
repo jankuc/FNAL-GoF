@@ -1,3 +1,5 @@
+% [histw, vinterval] = histwc(vv, ww, nbins, a, b)
+%
 % HISTWC  Weighted histogram count given number of bins
 %
 % This function generates a vector of cumulative weights for data

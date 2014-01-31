@@ -69,6 +69,8 @@ tic
 toc
 % 4 hours
 
+
+
 c = clock;
 time = c(4:6)
 njets = 2
@@ -91,7 +93,6 @@ Y = y*ones(size(x));
 R = sqrt(X.^2 + Y.^2) + eps;
 Z = sin(R)./R;
 imagesc(Z)
-
 
 for k = 1:6
   for var = 1:23

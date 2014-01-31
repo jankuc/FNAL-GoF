@@ -79,38 +79,38 @@ for k = doParticle
           if njets == 2 && v == 5
             continue
           end
-          try
-            numResults = numResults + 1;
-            currVar = leptonJetVar(v);
-            
-            %[XX1, ww1] = cropVarToHistInterval(X1(:,v),w1,v);
-            %[XX2, ww2] = cropVarToHistInterval(X2(:,v),w2,v);
-            
-            % filter out NaNs
-            arenan1 = isnan(X1(:,v));
-            w1f = w1(~arenan1);
-            X1f = X1(~arenan1,v);
-            arenan2 = isnan(X2(:,v));
-            w2f = w2(~arenan2);
-            X2f = X2(~arenan2,v);
-            
-            % filter out negative for Masses
-            if ismember(v,6:14)
-              areBelowZero1 = X1f < 0;
-              w1f = w1f(~areBelowZero1);
-              X1f = X1f(~areBelowZero1);
-              areBelowZero2 = X2f < 0;
-              w2f = w2f(~areBelowZero2);
-              X2f = X2f(~areBelowZero2);
-            else
-              areBelowZero1 = logical(zeros(size(w1f)));
-              areBelowZero2 = logical(zeros(size(w2f)));
-            end
-            [a, b] = currVar.histInterval(njets, k);            
-            
-            
-            %% TESTS
-            if 0
+          
+          numResults = numResults + 1;
+          currVar = leptonJetVar(v);
+          
+          %[XX1, ww1] = cropVarToHistInterval(X1(:,v),w1,v);
+          %[XX2, ww2] = cropVarToHistInterval(X2(:,v),w2,v);
+          
+          % filter out NaNs
+          arenan1 = isnan(X1(:,v));
+          w1f = w1(~arenan1);
+          X1f = X1(~arenan1,v);
+          arenan2 = isnan(X2(:,v));
+          w2f = w2(~arenan2);
+          X2f = X2(~arenan2,v);
+          
+          % filter out negative for Masses
+          if ismember(v,6:14)
+            areBelowZero1 = X1f < 0;
+            w1f = w1f(~areBelowZero1);
+            X1f = X1f(~areBelowZero1);
+            areBelowZero2 = X2f < 0;
+            w2f = w2f(~areBelowZero2);
+            X2f = X2f(~areBelowZero2);
+          else
+            areBelowZero1 = logical(zeros(size(w1f)));
+            areBelowZero2 = logical(zeros(size(w2f)));
+          end
+          [a, b] = currVar.histInterval(njets, k);
+          
+          
+          %% TESTS
+          if 0
             testType = 'kolm-smirn';
             [hypKS, pvalKS, statKS] = ...
               test1DEquality(X1f, w1f, X2f, w2f, testType, alpha);
@@ -118,18 +118,17 @@ for k = doParticle
             testType = 'cramer';
             [hypC, pvalC, statC] = ...
               test1DEquality(X1f, w1f, X2f, w2f, testType, alpha);
-            
+          end
             testType = 'renyi';
-            nbins = [40, 50, 100, 200];
+            nbins = [10, 15,20, 30, 30, 40, 50, 60, 70, 80, 95,   110, 210];
             for ren = 1:length(nbins);
               nbin = nbins(ren);
               renyiAlpha = 0.3;
               [hypR, pvalR, statR{ren}] = ...
-              test1DEquality(X1f, w1f, X2f, w2f, testType, renyiAlpha,'hist', nbin, a, b);
-              statR{ren} = 0;
+                test1DEquality(X1f, w1f, X2f, w2f, testType, renyiAlpha,'kernel', nbin, a, b);
             end
             
-            
+            statR
             %%
             %lepton, dataSet, nJets, var, H, pVal, stat
             %[k, l, njets, v, hyp, pval, stat]
@@ -148,78 +147,78 @@ for k = doParticle
             for ren = 1:length(nbins);
               res{kk,11 + ren} = statR{ren};
             end
-            end
-            %% Histograms
-            nbins = [15, 22, 30, 40, 50, 100, 200];
-            [a, b] = currVar.histInterval(njets,k);
-            for ren = 1:length(nbins);
-              nbin = nbins(ren);
-              %           max1 = max(X1f);
-              %           min1 = min(X1f);
-              %           d1 = (max1 - min1)/nbin;
-              %           max2 = max(X2f);
-              %           min2 = min(X2f);
-              %           nbin2 = floor((max2-min2)/d1);
-              [f1, x1] = histwc(X1f, w1f,nbin,a, b);
-              [f2, x2] = histwc(X2f, w2f,nbin,a, b);
-              f2 = [f2; zeros(length(f1) - length(f2),1)];
-              f1 = [f1; zeros(length(f2) - length(f1),1)];
-              
-              x = x1;
-              if length(x2) > length(x1)
-                x = x2;
-              end
-              figure;
-              bar(x,[f1 f2], 0.9, 'LineStyle', 'none')
-            end
-            
-            %% figure
-            h = figure(1000*v + 100*l+ 10*k + m);
-            subplot(2,1,1)
-            bar(x,[f1 f2], 0.9, 'LineStyle', 'none')
-            colormap(copper)
-            
-            % Legend
-            vs = ' vs. ';
-            legendTitle1 = data{l}{1}(1: strfind(data{l}{1}, vs)-1);
-            legendTitle2 = data{l}{1}((strfind(data{l}{1}, vs) + length(vs)):end);
-            sw1 = sum(w1f);
-            sw2 = sum(w2f);
-            sn1 = sum(w1(arenan1));
-            sn2 = sum(w2(arenan2));
-            sbz1 = sum(w1fbz(areBelowZero1));
-            sbz2 = sum(w2fbz(areBelowZero2));
-            
-            legend([legendTitle1 ', w = ' num2str(floor(sw1)) ', #NaN: ' num2str(sn1),...
-              ', #M<0: ' num2str(sbz1)],...
-              [legendTitle2  ', w = ' num2str(floor(sw2)) ', #NaN: ' num2str(sn2),...
-              ', #M<0: ' num2str(sbz2)])
-            
-            % Title
-            vv= axis;
-            titl = [particle{k}, '_ ', data{l}{1}, ' nJets: ', num2str(nJets{m}),...
-              ' var  ',num2str(v), ...
-              ' - ' currVar.toString];
-            title(sprintf([titl '\n pval=',...
-              num2str(pvalKS)])); %, 'EdgeColor','k');
-            %set(th, 'Position',[vv(2)*0.45,vv(4)*0.7, 0])
-            
-            subplot(2,1,2)
-            title('Rozdil histogramu.')
-            hPomer = bar(x, (f2-f1),'k');
-            set(hPomer(1),'BaseValue',0);
-            drawnow
-            mkdir(data{l}{1});
-            saveas(h,[data{l}{1} '/' titl '.png']);
-            %end
-            close all
           end
+          %% Histograms
+          nbins = [15, 22, 30, 40, 50, 100, 200];
+          [a, b] = currVar.histInterval(njets,k);
+          for ren = 1:length(nbins);
+            nbin = nbins(ren);
+            %           max1 = max(X1f);
+            %           min1 = min(X1f);
+            %           d1 = (max1 - min1)/nbin;
+            %           max2 = max(X2f);
+            %           min2 = min(X2f);
+            %           nbin2 = floor((max2-min2)/d1);
+            [f1, x1] = histwc(X1f, w1f,nbin,a, b);
+            [f2, x2] = histwc(X2f, w2f,nbin,a, b);
+            f2 = [f2; zeros(length(f1) - length(f2),1)];
+            f1 = [f1; zeros(length(f2) - length(f1),1)];
+            
+            x = x1;
+            if length(x2) > length(x1)
+              x = x2;
+            end
+            figure;
+            bar(x,[f1 f2], 0.9, 'LineStyle', 'none')
+          end
+          
+          %% figure
+          h = figure(1000*v + 100*l+ 10*k + m);
+          subplot(2,1,1)
+          bar(x,[f1 f2], 0.9, 'LineStyle', 'none')
+          colormap(copper)
+          
+          % Legend
+          vs = ' vs. ';
+          legendTitle1 = data{l}{1}(1: strfind(data{l}{1}, vs)-1);
+          legendTitle2 = data{l}{1}((strfind(data{l}{1}, vs) + length(vs)):end);
+          sw1 = sum(w1f);
+          sw2 = sum(w2f);
+          sn1 = sum(w1(arenan1));
+          sn2 = sum(w2(arenan2));
+          sbz1 = sum(w1fbz(areBelowZero1));
+          sbz2 = sum(w2fbz(areBelowZero2));
+          
+          legend([legendTitle1 ', w = ' num2str(floor(sw1)) ', #NaN: ' num2str(sn1),...
+            ', #M<0: ' num2str(sbz1)],...
+            [legendTitle2  ', w = ' num2str(floor(sw2)) ', #NaN: ' num2str(sn2),...
+            ', #M<0: ' num2str(sbz2)])
+          
+          % Title
+          vv= axis;
+          titl = [particle{k}, '_ ', data{l}{1}, ' nJets: ', num2str(nJets{m}),...
+            ' var  ',num2str(v), ...
+            ' - ' currVar.toString];
+          title(sprintf([titl '\n pval=',...
+            num2str(pvalKS)])); %, 'EdgeColor','k');
+          %set(th, 'Position',[vv(2)*0.45,vv(4)*0.7, 0])
+          
+          subplot(2,1,2)
+          title('Rozdil histogramu.')
+          hPomer = bar(x, (f2-f1),'k');
+          set(hPomer(1),'BaseValue',0);
+          drawnow
+          mkdir(data{l}{1});
+          saveas(h,[data{l}{1} '/' titl '.png']);
+          %end
+          close all
         end
-        end
+        
       end
     end
   end
 end
+
 
 
 % for kk = 1:numResults
