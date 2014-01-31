@@ -1,4 +1,4 @@
-function res = makeTable(particleIn, njetsIn, doData)
+function [res, renyiTab] = makeTable(particleIn, njetsIn, doData)
 % function res = makeTable(particleIn, njetsIn, doData)
 %
 % particleIn: 1 ... ele, 2 ... muo
@@ -55,6 +55,7 @@ catch
   assignin('base', 'leptonJetData', leptonJetData);
 end
 
+
 for k = doParticle
   for l = doData
     for m = doNJets
@@ -110,44 +111,48 @@ for k = doParticle
           
           
           %% TESTS
-          if 0
-            testType = 'kolm-smirn';
-            [hypKS, pvalKS, statKS] = ...
-              test1DEquality(X1f, w1f, X2f, w2f, testType, alpha);
-            
-            testType = 'cramer';
-            [hypC, pvalC, statC] = ...
-              test1DEquality(X1f, w1f, X2f, w2f, testType, alpha);
+          alpha = 0.01;
+          testType = 'kolm-smirn';
+          [hypKS, pvalKS, statKS] = ...
+            test1DEquality(X1f, w1f, X2f, w2f, testType, alpha);
+          
+          testType = 'cramer';
+          [hypC, pvalC, statC] = ...
+            test1DEquality(X1f, w1f, X2f, w2f, testType, alpha);
+          
+          testType = 'renyi';
+          histType = {'sqrt', 'rice', 'sturge', 'doane', 'scott'};
+          for r = 1:length(histType) ;
+            nbin = getHistogramNBin(X2f, histType{r});
+            renyiAlpha = 0.3;
+            [~, ~, statR{r}] = ...
+              test1DEquality(X1f, w1f, X2f, w2f, testType, renyiAlpha,'hist', nbin, a, b);
           end
-            testType = 'renyi';
-            nbins = [10, 15,20, 30, 30, 40, 50, 60, 70, 80, 95,   110, 210];
-            for ren = 1:length(nbins);
-              nbin = nbins(ren);
-              renyiAlpha = 0.3;
-              [hypR, pvalR, statR{ren}] = ...
-                test1DEquality(X1f, w1f, X2f, w2f, testType, renyiAlpha,'kernel', nbin, a, b);
-            end
-            
-            statR
-            %%
-            %lepton, dataSet, nJets, var, H, pVal, stat
-            %[k, l, njets, v, hyp, pval, stat]
-            kk = numResults;
-            res{kk,1} = particle{k};
-            res{kk,2} = data{l}{1};
-            res{kk,3} = njets;
-            res{kk,4} = v;
-            res{kk,5} = leptonJetVar(v).toString;
-            res{kk,6} = hypKS;
-            res{kk,7} = pvalKS;
-            res{kk,8} = statKS;
-            res{kk,9} = hypC;
-            res{kk,10} = pvalC;
-            res{kk,11} = statC;
-            for ren = 1:length(nbins);
-              res{kk,11 + ren} = statR{ren};
-            end
+          [~, ~, statR{length(histType) + 1}] = ...
+            test1DEquality(X1f, w1f, X2f, w2f, testType, renyiAlpha,'hist', 100, a, b);
+          
+          
+          %%
+          %lepton, dataSet, nJets, var, H, pVal, stat
+          %[k, l, njets, v, hyp, pval, stat]
+          kk = numResults;
+          res{kk,1} = particle{k};
+          res{kk,2} = data{l}{1};
+          res{kk,3} = njets;
+          res{kk,4} = v;
+          res{kk,5} = leptonJetVar(v).toString;
+          res{kk,6} = hypKS;
+          res{kk,7} = pvalKS;
+          res{kk,8} = statKS;
+          res{kk,9} = hypC;
+          res{kk,10} = pvalC;
+          res{kk,11} = statC;
+          for ren = 1:length(statR);
+            res{kk,11 + ren} = statR{ren};
+            renyiTab(kk, ren) = statR{ren};
           end
+          
+          continue
           %% Histograms
           nbins = [15, 22, 30, 40, 50, 100, 200];
           [a, b] = currVar.histInterval(njets,k);
