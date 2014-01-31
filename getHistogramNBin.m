@@ -8,10 +8,13 @@ function nbin = getHistogramNBin(X,type)
 %
 % type      'sqrt'            nbin = sqrt(n)
 %           'rice'            nbin = 2*n^(1/3)
-%           'sturge'             nbin = log2(n) + 1
-%           'doane'           nbin = 
+%           'sturge'          nbin = log2(n) + 1
+%           'doane'           nbin = 1 + log2(n) + log2(1 + abs(g1)./s1), where
+%                                    g1 = skewness(X),
+%                                    s1 = sqrt(6*(n-2)./(n+1)./(n+3)),
+%           'scott'           nbin = (b-a)/(3.49*std(X)) * n^(1/3)
 %
-%
+% histType = {'sqrt', 'rice', 'sturge', 'doane', 'scott'}
 
 if isscalar(X)
   n = X;
@@ -21,7 +24,7 @@ end
 
 switch type
   case 'sqrt'
-    nbin = sqrt(n);
+    nbin = ceil(sqrt(n));
   case 'rice'
     nbin = ceil(2*n.^(1/3));
   case 'sturge'
