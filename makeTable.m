@@ -46,8 +46,26 @@ res{kk,8} = 'STAT KS';
 res{kk,9} = 'H Cramer';
 res{kk,10} = 'PVAL Cramer';
 res{kk,11} = 'STAT Cramer';
-res{kk,12} = 'STAT Renyi';
+histType = {'sqrt', 'rice', 'sturge', 'doane', 'scott'};
+renType = [histType 'kernel'];
+nRenType = length(renType); % # of histoggrams + kernel
+colR = 12;
+colRR = colR + nRenType; % first column of renyi ranks
+
+% Renyi distances
+for k = 1:nRenType
+  res{kk,colR - 1 + k} = renType{k};
+end
+
+%Renyi ranks
+for k = 1:nRenType
+  res{kk,colRR - 1 + k} = renType{k};
+end
+res{kk, colRR + nRenType} = 'Median of Renyi ranks';
+
 numResults = 1;
+
+%% Load Data
 
 try leptonJetData = evalin( 'base', 'leptonJetData' );
 catch
@@ -55,6 +73,7 @@ catch
   assignin('base', 'leptonJetData', leptonJetData);
 end
 
+%% Cycle
 
 for k = doParticle
   for l = doData
@@ -70,7 +89,7 @@ for k = doParticle
         %         wYi = sum(w1)
         %         wDa = sum(w2)
         %         continue
-        
+        doneVars = [];
         for v = vars
           % skip Lepemv (v==24) for muon (k==2)
           if k == 2 && v == 24
@@ -80,6 +99,7 @@ for k = doParticle
           if njets == 2 && v == 5
             continue
           end
+          doneVars = [doneVars, v];
           
           numResults = numResults + 1;
           currVar = leptonJetVar(v);
@@ -120,19 +140,21 @@ for k = doParticle
           [hypC, pvalC, statC] = ...
             test1DEquality(X1f, w1f, X2f, w2f, testType, alpha);
           
+          statR = cell(nRenType,1);
+          
           testType = 'renyi';
-          histType = {'sqrt', 'rice', 'sturge', 'doane', 'scott'};
+          % histType = {'sqrt', 'rice', 'sturge', 'doane', 'scott'};
           for r = 1:length(histType) ;
             nbin = getHistogramNBin(X2f, histType{r});
             renyiAlpha = 0.3;
             [~, ~, statR{r}] = ...
               test1DEquality(X1f, w1f, X2f, w2f, testType, renyiAlpha,'hist', nbin, a, b);
           end
-          [~, ~, statR{length(histType) + 1}] = ...
-            test1DEquality(X1f, w1f, X2f, w2f, testType, renyiAlpha,'hist', 100, a, b);
+          [~, ~, statR{nRenType}] = ...
+            test1DEquality(X1f, w1f, X2f, w2f, testType, renyiAlpha,'kernel', 100, a, b);
           
           
-          %%
+          %% printout of the KS, CM
           %lepton, dataSet, nJets, var, H, pVal, stat
           %[k, l, njets, v, hyp, pval, stat]
           kk = numResults;
@@ -147,77 +169,97 @@ for k = doParticle
           res{kk,9} = hypC;
           res{kk,10} = pvalC;
           res{kk,11} = statC;
-          for ren = 1:length(statR);
-            res{kk,11 + ren} = statR{ren};
-            renyiTab(kk, ren) = statR{ren};
+          
+          %% Printout of Renyi dists.
+          for ll = 1:nRenType;
+            res{kk,colR - 1 + ll} = statR{ll};
+            renyiTab(kk-1, ll) = statR{ll};
           end
           
-          continue
-          %% Histograms
-          nbins = [15, 22, 30, 40, 50, 100, 200];
-          [a, b] = currVar.histInterval(njets,k);
-          for ren = 1:length(nbins);
-            nbin = nbins(ren);
-            %           max1 = max(X1f);
-            %           min1 = min(X1f);
-            %           d1 = (max1 - min1)/nbin;
-            %           max2 = max(X2f);
-            %           min2 = min(X2f);
-            %           nbin2 = floor((max2-min2)/d1);
-            [f1, x1] = histwc(X1f, w1f,nbin,a, b);
-            [f2, x2] = histwc(X2f, w2f,nbin,a, b);
-            f2 = [f2; zeros(length(f1) - length(f2),1)];
-            f1 = [f1; zeros(length(f2) - length(f1),1)];
-            
-            x = x1;
-            if length(x2) > length(x1)
-              x = x2;
+          
+          
+          
+          for kkkk = []
+            %% Histograms
+            nbins = [15, 22, 30, 40, 50, 100, 200];
+            [a, b] = currVar.histInterval(njets,k);
+            for ren = 1:length(nbins);
+              nbin = nbins(ren);
+              %           max1 = max(X1f);
+              %           min1 = min(X1f);
+              %           d1 = (max1 - min1)/nbin;
+              %           max2 = max(X2f);
+              %           min2 = min(X2f);
+              %           nbin2 = floor((max2-min2)/d1);
+              [f1, x1] = histwc(X1f, w1f,nbin,a, b);
+              [f2, x2] = histwc(X2f, w2f,nbin,a, b);
+              f2 = [f2; zeros(length(f1) - length(f2),1)];
+              f1 = [f1; zeros(length(f2) - length(f1),1)];
+              
+              x = x1;
+              if length(x2) > length(x1)
+                x = x2;
+              end
+              figure;
+              bar(x,[f1 f2], 0.9, 'LineStyle', 'none')
             end
-            figure;
+            
+            %% figure
+            h = figure(1000*v + 100*l+ 10*k + m);
+            subplot(2,1,1)
             bar(x,[f1 f2], 0.9, 'LineStyle', 'none')
+            colormap(copper)
+            
+            % Legend
+            vs = ' vs. ';
+            legendTitle1 = data{l}{1}(1: strfind(data{l}{1}, vs)-1);
+            legendTitle2 = data{l}{1}((strfind(data{l}{1}, vs) + length(vs)):end);
+            sw1 = sum(w1f);
+            sw2 = sum(w2f);
+            sn1 = sum(w1(arenan1));
+            sn2 = sum(w2(arenan2));
+            sbz1 = sum(w1fbz(areBelowZero1));
+            sbz2 = sum(w2fbz(areBelowZero2));
+            
+            legend([legendTitle1 ', w = ' num2str(floor(sw1)) ', #NaN: ' num2str(sn1),...
+              ', #M<0: ' num2str(sbz1)],...
+              [legendTitle2  ', w = ' num2str(floor(sw2)) ', #NaN: ' num2str(sn2),...
+              ', #M<0: ' num2str(sbz2)])
+            
+            % Title
+            vv= axis;
+            titl = [particle{k}, '_ ', data{l}{1}, ' nJets: ', num2str(nJets{m}),...
+              ' var  ',num2str(v), ...
+              ' - ' currVar.toString];
+            title(sprintf([titl '\n pval=',...
+              num2str(pvalKS)])); %, 'EdgeColor','k');
+            %set(th, 'Position',[vv(2)*0.45,vv(4)*0.7, 0])
+            
+            subplot(2,1,2)
+            title('Rozdil histogramu.')
+            hPomer = bar(x, (f2-f1),'k');
+            set(hPomer(1),'BaseValue',0);
+            drawnow
+            mkdir(data{l}{1});
+            saveas(h,[data{l}{1} '/' titl '.png']);
+            %end
+            close all
           end
           
-          %% figure
-          h = figure(1000*v + 100*l+ 10*k + m);
-          subplot(2,1,1)
-          bar(x,[f1 f2], 0.9, 'LineStyle', 'none')
-          colormap(copper)
-          
-          % Legend
-          vs = ' vs. ';
-          legendTitle1 = data{l}{1}(1: strfind(data{l}{1}, vs)-1);
-          legendTitle2 = data{l}{1}((strfind(data{l}{1}, vs) + length(vs)):end);
-          sw1 = sum(w1f);
-          sw2 = sum(w2f);
-          sn1 = sum(w1(arenan1));
-          sn2 = sum(w2(arenan2));
-          sbz1 = sum(w1fbz(areBelowZero1));
-          sbz2 = sum(w2fbz(areBelowZero2));
-          
-          legend([legendTitle1 ', w = ' num2str(floor(sw1)) ', #NaN: ' num2str(sn1),...
-            ', #M<0: ' num2str(sbz1)],...
-            [legendTitle2  ', w = ' num2str(floor(sw2)) ', #NaN: ' num2str(sn2),...
-            ', #M<0: ' num2str(sbz2)])
-          
-          % Title
-          vv= axis;
-          titl = [particle{k}, '_ ', data{l}{1}, ' nJets: ', num2str(nJets{m}),...
-            ' var  ',num2str(v), ...
-            ' - ' currVar.toString];
-          title(sprintf([titl '\n pval=',...
-            num2str(pvalKS)])); %, 'EdgeColor','k');
-          %set(th, 'Position',[vv(2)*0.45,vv(4)*0.7, 0])
-          
-          subplot(2,1,2)
-          title('Rozdil histogramu.')
-          hPomer = bar(x, (f2-f1),'k');
-          set(hPomer(1),'BaseValue',0);
-          drawnow
-          mkdir(data{l}{1});
-          saveas(h,[data{l}{1} '/' titl '.png']);
-          %end
-          close all
         end
+        
+        B = getRanksFromMin(renyiTab);
+        %meanRR = mean(B,2);
+        medianRR = median(B,2);
+        
+        for kk = 1:length(doneVars)
+          for ll = 1:nRenType;
+            res{kk+1,colRR - 1 + ll} = B(kk,ll);
+          end
+          res{kk+1,colRR + nRenType} = medianRR(kk);
+        end
+        
+        
         
       end
     end
