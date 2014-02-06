@@ -9,7 +9,7 @@ function [tables, results] = makeMoreTables(particleIn, nJets, doData)
 %   data{2} = {'Train vs. Test',          'val',1,2};
 %   data{3} = {'Train + Test vs. Data',   'train',1,3};
 %   data{4} = {'Yield vs. Data',          'train', 0,3};
-
+tic
 particle{1} = 'ele';
 particle{2} = 'muo';
 
@@ -46,5 +46,5 @@ for part = particleIn
     end
   end
 end
-        
+toc
         

@@ -36,10 +36,15 @@ for k = 1:2*length(renType)
   table{kk,colR - 1 + k} = renType{mod(k-1,nRenType) + 1};
 end
 
-for v = vars
-  kk = kk + 1;
-  currVar = leptonJetVar(v);
+lines = cell(length(vars),1);
+for k = 1:length(lines)
+  lines{k} = cell(1, colRR + nRenType);
+end
   
+matlabpool(20);
+parfor v = vars
+  currVar = leptonJetVar(v);
+  line = cell(1, colRR + nRenType);
   %[XX1, ww1] = cropVarToHistInterval(X1(:,v),w1,v);
   %[XX2, ww2] = cropVarToHistInterval(X2(:,v),w2,v);
   
@@ -79,6 +84,7 @@ for v = vars
   statR = cell(nRenType,1);
   
   %% histogram
+  for nic = []
   figure;
   nbin = getHistogramNBin(X1f, 'doane');
   [f1, x1] = histwc(X1f, w1f,nbin,a, b);
@@ -88,7 +94,9 @@ for v = vars
   figure;
   bar(x1,[f1 f2], 0.9, 'LineStyle', 'none')
   title(leptonJetVar(v).toString())
+  end
   
+  %% Renyi
   testType = 'renyi';
   % histType = {'sqrt', 'rice', 'sturge', 'doane', 'scott'};
   for r = 1:length(histType) ;
@@ -104,26 +112,33 @@ for v = vars
   %% printout of the KS, CM
   %lepton, dataSet, nJets, var, H, pVal, stat
   %[k, l, njets, v, hyp, pval, stat]
-  table{kk,1} = particle{part};
-  table{kk,2} = data{typeOfData}{1};
-  table{kk,3} = njets;
-  table{kk,4} = v;
-  table{kk,5} = leptonJetVar(v).toString;
-  table{kk,6} = hypKS;
-  table{kk,7} = pvalKS;
-  table{kk,8} = statKS;
-  table{kk,9} = hypC;
-  table{kk,10} = pvalC;
-  table{kk,11} = statC;
+  line{1} = particle{part};
+  line{2} = data{typeOfData}{1};
+  line{3} = njets;
+  line{4} = v;
+  line{5} = leptonJetVar(v).toString;
+  line{6} = hypKS;
+  line{7} = pvalKS;
+  line{8} = statKS;
+  line{9} = hypC;
+  line{10} = pvalC;
+  line{11} = statC;
   
   %% Printout of Renyi dists.
   for l = 1:nRenType;
-    table{kk,colR - 1 + l} = statR{l};
-    result(kk-1, l) = statR{l};
+    line{colR - 1 + l} = statR{l};
   end
-  
+  lines{v} = line;
 end
 
+result = nan(length(lines), nRenType + 2);
+for k = 1:length(lines) % lines
+  for l = 1:length(lines{1}) % columns
+    result(k,l) = lines{k}{l};
+    table{k+1, l+1} = lines{k}{l};
+  end
+end
+  
 B = getRanksFromMin(result);
 %meanRR = mean(B,2);
 medianRR = median(B,2);
