@@ -252,11 +252,12 @@ for k = doParticle
         %meanRR = mean(B,2);
         medianRR = median(B,2);
         
-        for kk = 1:length(doneVars)
+        %         for kkk = kk-length(doneVars)+1:kk
+        for kkk = 1:length(doneVars)
           for ll = 1:nRenType;
-            res{kk+1,colRR - 1 + ll} = B(kk,ll);
+            res{kk -length(doneVars) + kkk,colRR - 1 + ll} = B(kkk,ll);
           end
-          res{kk+1,colRR + nRenType} = medianRR(kk);
+          res{kk -length(doneVars) + kkk ,colRR + nRenType} = medianRR(kkk);
         end
         
         

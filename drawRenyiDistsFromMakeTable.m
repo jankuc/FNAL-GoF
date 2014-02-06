@@ -4,7 +4,7 @@
 A = renyiTab(2:end-1,:);
 
 nVars = size(A, 1);
-plot(A-repmat(min(A), size(A,1),1));
+%plot(A-repmat(min(A), size(A,1),1));
 
 renNames = {'sqrt', 'rice', 'sturge', 'doane', 'scott','kernel'};
 legend(renNames);
@@ -24,4 +24,9 @@ for l = 1:nRenNames
     res(nVars-k+1,l) = find(indeces(:,l)==k);
   end
 end
+
 res
+
+median(res,2)
+mean(res,2)
+
