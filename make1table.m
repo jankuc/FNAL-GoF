@@ -41,79 +41,78 @@ for k = 1:length(lines)
   lines{k} = cell(1, colRR + nRenType);
 end
   
-matlabpool(20);
-parfor v = vars
-  currVar = leptonJetVar(v);
-  line = cell(1, colRR + nRenType);
-  %[XX1, ww1] = cropVarToHistInterval(X1(:,v),w1,v);
-  %[XX2, ww2] = cropVarToHistInterval(X2(:,v),w2,v);
-  
-  % filter out NaNs
-  arenan1 = isnan(X1(:,v));
-  w1f = w1(~arenan1);
-  X1f = X1(~arenan1,v);
-  arenan2 = isnan(X2(:,v));
-  w2f = w2(~arenan2);
-  X2f = X2(~arenan2,v);
-  
-  % filter out negative for Masses
-  if ismember(v,6:14)
-    areBelowZero1 = X1f < 0;
-    w1f = w1f(~areBelowZero1);
-    X1f = X1f(~areBelowZero1);
-    areBelowZero2 = X2f < 0;
-    w2f = w2f(~areBelowZero2);
-    X2f = X2f(~areBelowZero2);
-  else
-    areBelowZero1 = logical(zeros(size(w1f)));
-    areBelowZero2 = logical(zeros(size(w2f)));
-  end
-  
-  [a, b] = currVar.histInterval(njets, part);
-  
-  %% TESTS
-  alpha = 0.01;
-  testType = 'kolm-smirn';
-  [hypKS, pvalKS, statKS] = ...
-    test1DEquality(X1f, w1f, X2f, w2f, testType, alpha);
-  
-  testType = 'cramer';
-  [hypC, pvalC, statC] = ...
-    test1DEquality(X1f, w1f, X2f, w2f, testType, alpha);
-  
-  statR = cell(nRenType,1);
-  
-  %% histogram
-  for nic = []
-  figure;
-  nbin = getHistogramNBin(X1f, 'doane');
-  [f1, x1] = histwc(X1f, w1f,nbin,a, b);
-  [f2, x2] = histwc(X2f, w2f,nbin,a, b);
-  f2 = [f2; zeros(length(f1) - length(f2),1)];
-  f1 = [f1; zeros(length(f2) - length(f1),1)];
-  figure;
-  bar(x1,[f1 f2], 0.9, 'LineStyle', 'none')
-  title(leptonJetVar(v).toString())
-  end
-  
-  %% Renyi
-  testType = 'renyi';
-  % histType = {'sqrt', 'rice', 'sturge', 'doane', 'scott'};
-  for r = 1:length(histType) ;
-    nbin = getHistogramNBin(X2f, histType{r});
-    renyiAlpha = 0.3;
-    [~, ~, statR{r}] = ...
-      test1DEquality(X1f, w1f, X2f, w2f, testType, renyiAlpha,'hist', nbin, a, b);
-  end
-  [~, ~, statR{nRenType}] = ...
-    test1DEquality(X1f, w1f, X2f, w2f, testType, renyiAlpha,'kernel', 300, a, b);
-  
-  
-  %% printout of the KS, CM
-  %lepton, dataSet, nJets, var, H, pVal, stat
-  %[k, l, njets, v, hyp, pval, stat]
-  line{1} = particle{part};
-  line{2} = data{typeOfData}{1};
+parfor v = vars                                                                                            
+  currVar = leptonJetVar(v);                                                                               
+  line = cell(1, colRR + nRenType);                                                                        
+  %[XX1, ww1] = cropVarToHistInterval(X1(:,v),w1,v);                                                       
+  %[XX2, ww2] = cropVarToHistInterval(X2(:,v),w2,v);                                                       
+                                                                                                           
+  % filter out NaNs                                                                                        
+  arenan1 = isnan(X1(:,v));                                                                                
+  w1f = w1(~arenan1);                                                                                      
+  X1f = X1(~arenan1,v);                                                                                    
+  arenan2 = isnan(X2(:,v));                                                                                
+  w2f = w2(~arenan2);                                                                                      
+  X2f = X2(~arenan2,v);                                                                                    
+                                                                                                           
+  % filter out negative for Masses                                                                         
+  if ismember(v,6:14)                                                                                      
+    areBelowZero1 = X1f < 0;                                                                               
+    w1f = w1f(~areBelowZero1);                                                                             
+    X1f = X1f(~areBelowZero1);                                                                             
+    areBelowZero2 = X2f < 0;                                                                               
+    w2f = w2f(~areBelowZero2);                                                                             
+    X2f = X2f(~areBelowZero2);                                                                             
+  else                                                                                                     
+    areBelowZero1 = logical(zeros(size(w1f)));                                                             
+    areBelowZero2 = logical(zeros(size(w2f)));                                                             
+  end                                                                                                      
+                                                                                                           
+  [a, b] = currVar.histInterval(njets, part);                                                              
+                                                                                                           
+  %% TESTS                                                                                                 
+  alpha = 0.01;                                                                                            
+  testType = 'kolm-smirn';                                                                                 
+  [hypKS, pvalKS, statKS] = ...                                                                            
+    test1DEquality(X1f, w1f, X2f, w2f, testType, alpha);                                                   
+                                                                                                           
+  testType = 'cramer';                                                                                     
+  [hypC, pvalC, statC] = ...                                                                               
+    test1DEquality(X1f, w1f, X2f, w2f, testType, alpha);                                                   
+                                                                                                           
+  statR = cell(nRenType,1);                                                                                
+                                                                                                           
+  %% histogram                                                                                             
+  for nic = []                                                                                             
+  figure;                                                                                                  
+  nbin = getHistogramNBin(X1f, 'doane');                                                                   
+  [f1, x1] = histwc(X1f, w1f,nbin,a, b);                                                                   
+  [f2, x2] = histwc(X2f, w2f,nbin,a, b);                                                                   
+  f2 = [f2; zeros(length(f1) - length(f2),1)];                                                             
+  f1 = [f1; zeros(length(f2) - length(f1),1)];                                                             
+  figure;                                                                                                  
+  bar(x1,[f1 f2], 0.9, 'LineStyle', 'none')                                                                
+  title(leptonJetVar(v).toString())                                                                        
+  end                                                                                                      
+                                                                                                           
+  %% Renyi                                                                                                 
+  testType = 'renyi';                                                                                      
+  % histType = {'sqrt', 'rice', 'sturge', 'doane', 'scott'};                                               
+  for r = 1:length(histType) ;                                                                             
+    nbin = getHistogramNBin(X2f, histType{r});                                                             
+    renyiAlpha = 0.3;                                                                                      
+    [~, ~, statR{r}] = ...                                                                                 
+      test1DEquality(X1f, w1f, X2f, w2f, testType, renyiAlpha,'hist', nbin, a, b);                         
+  end                                                                                                      
+  [~, ~, statR{nRenType}] = ...                                                                            
+    test1DEquality(X1f, w1f, X2f, w2f, testType, renyiAlpha,'kernel', 300, a, b);                          
+                                                                                                           
+                                                                                                           
+  %% printout of the KS, CM                                                                                
+  %lepton, dataSet, nJets, var, H, pVal, stat                                                              
+  %[k, l, njets, v, hyp, pval, stat]                                                                       
+  line{1} = particle{part};                                                                                
+  line{2} = data{typeOfData}{1};                                                                           
   line{3} = njets;
   line{4} = v;
   line{5} = leptonJetVar(v).toString;
@@ -131,23 +130,30 @@ parfor v = vars
   lines{v} = line;
 end
 
-result = nan(length(lines), nRenType + 2);
+
 for k = 1:length(lines) % lines
   for l = 1:length(lines{1}) % columns
-    result(k,l) = lines{k}{l};
-    table{k+1, l+1} = lines{k}{l};
+    table{k+1, l} = lines{k}{l};
   end
 end
-  
-B = getRanksFromMin(result);
+
+stats = nan(length(lines), nRenType + 2);
+for k = 1:length(lines) % lines
+    stats(k,1) = lines{k}{8}; % KS
+    stats(k,2) = lines{k}{11}; % CM
+  for l = 1:size(stats,2)-2 % columns
+    stats(k,l+2) = lines{k}{colR - 1 + l};
+  end
+end
+
+B = getRanksFromMin(stats);
 %meanRR = mean(B,2);
 medianRR = median(B,2);
 
-for k = 1:length(vars)
-  for l = 1:nRenType;
+for k = vars
+  for l = 1:size(stats,2)
     table{k+1, colRR - 1 + l} = B(k,l);
   end
-  table{k+1 ,colRR + nRenType} = medianRR(k);
+  table{k+1 ,colRR + nRenType + 2} = medianRR(k);
 end
-
 
