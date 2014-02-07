@@ -46,7 +46,7 @@ parfor v = vars
   line = cell(1, colRR + nRenType);                                                                        
   %[XX1, ww1] = cropVarToHistInterval(X1(:,v),w1,v);                                                       
   %[XX2, ww2] = cropVarToHistInterval(X2(:,v),w2,v);                                                       
-                                                                                                           
+
   % filter out NaNs                                                                                        
   arenan1 = isnan(X1(:,v));                                                                                
   w1f = w1(~arenan1);                                                                                      
@@ -54,7 +54,7 @@ parfor v = vars
   arenan2 = isnan(X2(:,v));                                                                                
   w2f = w2(~arenan2);                                                                                      
   X2f = X2(~arenan2,v);                                                                                    
-                                                                                                           
+
   % filter out negative for Masses                                                                         
   if ismember(v,6:14)                                                                                      
     areBelowZero1 = X1f < 0;                                                                               
@@ -67,21 +67,21 @@ parfor v = vars
     areBelowZero1 = logical(zeros(size(w1f)));                                                             
     areBelowZero2 = logical(zeros(size(w2f)));                                                             
   end                                                                                                      
-                                                                                                           
+
   [a, b] = currVar.histInterval(njets, part);                                                              
-                                                                                                           
+
   %% TESTS                                                                                                 
   alpha = 0.01;                                                                                            
   testType = 'kolm-smirn';                                                                                 
   [hypKS, pvalKS, statKS] = ...                                                                            
     test1DEquality(X1f, w1f, X2f, w2f, testType, alpha);                                                   
-                                                                                                           
+    
   testType = 'cramer';                                                                                     
   [hypC, pvalC, statC] = ...                                                                               
     test1DEquality(X1f, w1f, X2f, w2f, testType, alpha);                                                   
-                                                                                                           
+    
   statR = cell(nRenType,1);                                                                                
-                                                                                                           
+
   %% histogram                                                                                             
   for nic = []                                                                                             
   figure;                                                                                                  
@@ -94,7 +94,7 @@ parfor v = vars
   bar(x1,[f1 f2], 0.9, 'LineStyle', 'none')                                                                
   title(leptonJetVar(v).toString())                                                                        
   end                                                                                                      
-                                                                                                           
+
   %% Renyi                                                                                                 
   testType = 'renyi';                                                                                      
   % histType = {'sqrt', 'rice', 'sturge', 'doane', 'scott'};                                               
@@ -106,8 +106,8 @@ parfor v = vars
   end                                                                                                      
   [~, ~, statR{nRenType}] = ...                                                                            
     test1DEquality(X1f, w1f, X2f, w2f, testType, renyiAlpha,'kernel', 300, a, b);                          
-                                                                                                           
-                                                                                                           
+
+
   %% printout of the KS, CM                                                                                
   %lepton, dataSet, nJets, var, H, pVal, stat                                                              
   %[k, l, njets, v, hyp, pval, stat]                                                                       
