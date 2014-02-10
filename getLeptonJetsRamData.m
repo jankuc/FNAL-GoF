@@ -1,22 +1,27 @@
 function [ data, weight ] = getLeptonJetsRamData(muoEle,lepJetType, varargin)
-%	[ data, weight ] =  getLeptonJetsRamData(muoEle, lepJetType, varargin)
+% [ data, weight ] =  getLeptonJetsRamData(muoEle, lepJetType, varargin)
 %
 % Loads mixture of specified sets of leptonJetTypes.
 %
-%	muoEle:       'muo', 'ele'
-%	lepJetType:   leptonJetType, [leptonJetType1,leptonJetType2,...],[2:18]
+%       muoEle:       'muo', 'ele'
+%       lepJetType:   leptonJetType, [leptonJetType1,leptonJetType2,...] or [2:18]
 %
 % VARARGIN:
-%	train:        0... yield,
+%       train:        0... yield,
 %               1... train, test
 %               3... data
-%	val:          0... yield
+%       val:          0... yield
 %               1... train
 %               2... test
 %               3... data
-%	njets:        2, 3, 4==(4,5,...)
-%	type:         0... background ?
+%       njets:        2, 3, 4==(4,5,...)
+%       type:         0... background ?
 %               1... signal ?
+%
+% EXAMPLE: getLeptonJetsRamData('muo',2:18, 'njets', 2:4, 'val', 0)
+%     loads all of the channels of muon, all jets (2,3,4) and gets only
+%     yield sample
+
 
 try leptonJetData = evalin( 'base', 'leptonJetData' );
 catch
