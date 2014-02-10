@@ -1,4 +1,4 @@
-sfunction [h, p, stat] = test1DEquality(x1, w1, x2, w2, type, varargin)
+function [h, p, stat] = test1DEquality(x1, w1, x2, w2, type, varargin)
 % [h p stat] = test1DEquality(x1, w1, x2, w2, type, varargin)
 %
 %	alpha = 0.01;
@@ -57,6 +57,16 @@ switch type
       end
     end
     [h, p, stat] = test_wCM2(x1, w1, x2, w2, alpha);
+   case  'anderson-darling'
+    %% Anderson-Darling
+    if nargin > 5
+      if isnumeric(varargin{1})
+        alpha = varargin{1};
+      else
+        alpha = varargin{1}{1};
+      end
+    end
+    [h, p, stat] = test_wAD2(x1, w1, x2, w2, alpha);
   case 'renyi'
     %% Renyi
 %     a = pars{1}; % Renyi alpha

@@ -1,4 +1,4 @@
-function [table, result] = make1table(part, njets, typeOfData, vars, X1, w1, X2, w2)
+function [table, stats] = make1table(part, njets, typeOfData, vars, X1, w1, X2, w2)
 % [table, res] = make1table(part, njets, vars, X1, w1, X2, w2)
 %
 %
@@ -24,12 +24,14 @@ for k = 1:nRenType
   testHeader{3 + k} = renType{k};
 end
 
-colRanks = length(headerLine) + 2;
+nTest = length(testHeader);
+
+colRanks = length(headerLine) + 1;
 for k = 1:length(testHeader)
   colRanks = colRanks + size(testHeader{k},1);
 end
 
-widthTable = colRanks - 1 + length(testHeader);
+widthTable = colRanks - 1 + length(testHeader) + 1;
 table = cell(max(vars) + 1,widthTable);
 
 for k = 1:length(testHeader)
@@ -41,10 +43,8 @@ for k = 1:length(testHeader)
 end
 
 for k = 1:length(headerLine)
-  table{1,k+1} = headerLine{k};
+  table{1,k} = headerLine{k};
 end
-
-
 
 lines = cell(length(vars),1);
 for k = 1:length(lines)
@@ -52,7 +52,7 @@ for k = 1:length(lines)
 end
 
 test = cell(max(vars),1);
-parfor v = vars                                                                                            
+for v = vars                                                                                            
   currVar = leptonJetVar(v);                                                                               
   line = cell(1, colRanks + nRenType);                                                                        
   %[XX1, ww1] = cropVarToHistInterval(X1(:,v),w1,v);                                                       
@@ -85,28 +85,27 @@ parfor v = vars
   
   alpha = 0.01;
   % test{n} = {#cols in table, #col. for min-ranking, cell{nameOfCols}, test_pars} 
-  test{v}{1} = {3, 3,testHeader{1} 'kolm-smirn', alpha}; 
-  test{v}{2} = {3, 3,testHeader{2} 'cramer', alpha};
-  test{v}{3} = {3, 3,testHeader{3} 'anderson-darling', alpha};
+  test{v}{1} = {3, 3,testHeader{1}, 'kolm-smirn', alpha}; 
+  test{v}{2} = {3, 3,testHeader{2}, 'cramer', alpha};
+  test{v}{3} = {3, 3,testHeader{3}, 'anderson-darling', alpha};
  
   renyiAlpha = 0.3; 
   for l = 1:nRenType
     if l <= length(histType)
       nbin = getHistogramNBin(X2f, histType{l});
       test{v}{length(test{v})+1} = ...
-        {1, 1,testHeader{3+l}, 'renyi',  {renyiAlpha, 'hist', nbin, a, b}}
+        {1, 1,testHeader{3+l}, 'renyi',  {renyiAlpha, 'hist', nbin, a, b}};
     else
       test{v}{length(test{v})+1} = ...
-        {1, 1,testHeader{3+l}, 'renyi',  {renyiAlpha, 'kernel', 100, a, b}}
+        {1, 1,testHeader{3+l}, 'renyi',  {renyiAlpha, 'kernel', 100, a, b}};
     end
   end
   
-  nTest = length(test{v});
-  hyp = cell(nTest, 1);
-  pval = cell(nTest, 1);
-  stat = cell(nTest, 1);
+  hyp = cell(nTest,1);
+  pval = cell(nTest,1);
+  stat = cell(nTest,1);
   
-  for k = 1:length(nTest)
+  for k = 1:nTest
     [hyp{k} pval{k} stat{k}] = ...
       test1DEquality(X1f, w1f, X2f, w2f, test{v}{k}{4}, test{v}{k}{5});
   end                                                                             
@@ -158,14 +157,23 @@ for k = 1:length(lines) % lines
   end
 end
 
-% stats = nan(length(lines), nRenType + 2);
-% for k = 1:length(lines) % lines
-%     stats(k,1) = lines{k}{8}; % KS
-%     stats(k,2) = lines{k}{11}; % CM
-%   for l = 1:size(stats,2)-2 % columns
-%     stats(k,l+2) = lines{k}{colR - 1 + l};
-%   end
-% end
+stats = nan(length(lines), nTest); % maybe nTest 's scope is only the parfor loop
+
+for k = 1:length(lines) % lines==vars
+  offset = 5;
+  for l = 1:size(stats,2) % columns==tests
+    stats(k,l) = lines{k}{offset + test{1}{l}{2}};
+    offset = offset + test{1}{l}{1};
+  end
+end
+
+for k = nTest:-1:1
+  try 
+    table{1, end - nTest + k -1} = testHeader{k}{test{1}{k}{2}};
+  catch %#ok<CTCH>
+    table{1, end - nTest + k -1} = testHeader{k};
+  end
+end
 
 B = getRanksFromMin(stats);
 %meanRR = mean(B,2);
@@ -175,6 +183,6 @@ for k = vars
   for l = 1:size(stats,2)
     table{k+1, colRanks - 1 + l} = B(k,l);
   end
-  table{k+1 ,colRanks + nRenType + 2} = medianRR(k);
+  table{k+1,colRanks + nTest} = medianRR(k);
 end
 
