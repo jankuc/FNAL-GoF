@@ -39,9 +39,9 @@ for part = particleIn
       else
         vars = 1:23;
       end
-      if njets == 2
-        vars = setdiff(vars,5);
-      end
+%       if njets == 2
+%         vars = setdiff(vars,5);
+%       end
       [tables{part}{njets}{l} results{part}{njets}{l}] = make1table(part, njets, l, vars, X1, w1, X2, w2);
     end
   end
