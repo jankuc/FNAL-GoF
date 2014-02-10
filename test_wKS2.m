@@ -60,8 +60,8 @@ function [H, pVal, KSstatistic] = test_wKS2(x1, w1, x2, w2, varargin)
 %   Conover, W.J., (1980) Practical Nonparametric Statistics, Wiley.
 %   Press, W.H., et. al., (1992) Numerical Recipes in C, Cambridge Univ. Press.
 
-if nargin < 2
-  error(message('stats:kstest2:TooFewInputs'));
+if nargin < 4
+  error('stats:test_wKS2:TooFewInputs','At least 4 inputs are required.');
 end
 
 % Parse optional inputs

@@ -99,3 +99,16 @@ for k = 1:6
     found(var,k) = find(A(:,k)==var);
   end
 end
+
+
+
+
+
+n = 10000;
+x1 = randn(n,1);
+x2 = randn(n,1);
+w1 = ones(n,1);
+w2 = ones(n,1);
+
+[h, pval, stat] = test1DEquality(x1,w1,x2,w2,'typ',{12,23,45})
+

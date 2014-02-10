@@ -12,38 +12,49 @@ data{2} = {'Train vs. Test',          'val',1,2};
 data{3} = {'Train + Test vs. Data',   'train',1,3};
 data{4} = {'Yield vs. Data',          'train', 0,3};
 
-%% headr of table
-kk = 1;
-table = cell(24,24);
-table{kk,1} = 'PARTICLE';
-table{kk,2} = 'SETS';
-table{kk,3} = 'NJETS';
-table{kk,4} = 'VAR #';
-table{kk,5} = 'VAR NAME';
-table{kk,6} = 'H KS';
-table{kk,7} = 'PVAL KS';
-table{kk,8} = 'STAT KS';
-table{kk,9} = 'H Cramer';
-table{kk,10} = 'PVAL Cramer';
-table{kk,11} = 'STAT Cramer';
+%% header of table
+headerLine = {'Lept','Set', '#Jets','#var','var'};
+testHeader{1} = {'H KS'; 'pval KS'; 'stat KS'};
+testHeader{2} = {'H cra'; 'pval cra'; 'stat cra'};
+testHeader{3} = {'H A-D'; 'pval A-D'; 'stat A-D'};
 histType = {'sqrt', 'rice', 'sturge', 'doane', 'scott'};
 renType = [histType 'kernel'];
 nRenType = length(renType); % # of histoggrams + kernel
-colR = 12;
-colRR = colR + nRenType; % first column of renyi ranks
-
-for k = 1:2*length(renType)
-  table{kk,colR - 1 + k} = renType{mod(k-1,nRenType) + 1};
+for k = 1:nRenType
+  testHeader{3 + k} = renType{k};
 end
+
+colRanks = length(headerLine) + 2;
+for k = 1:length(testHeader)
+  colRanks = colRanks + size(testHeader{k},1);
+end
+
+widthTable = colRanks - 1 + length(testHeader);
+table = cell(max(vars) + 1,widthTable);
+
+for k = 1:length(testHeader)
+  if ischar(testHeader{k})
+    headerLine = horzcat(headerLine, (testHeader{k}));
+  else
+    headerLine = horzcat(headerLine, (testHeader{k})');
+  end
+end
+
+for k = 1:length(headerLine)
+  table{1,k+1} = headerLine{k};
+end
+
+
 
 lines = cell(length(vars),1);
 for k = 1:length(lines)
-  lines{k} = cell(1, colRR + nRenType);
+  lines{k} = cell(1, colRanks + nRenType);
 end
-  
+
+test = cell(max(vars),1);
 parfor v = vars                                                                                            
   currVar = leptonJetVar(v);                                                                               
-  line = cell(1, colRR + nRenType);                                                                        
+  line = cell(1, colRanks + nRenType);                                                                        
   %[XX1, ww1] = cropVarToHistInterval(X1(:,v),w1,v);                                                       
   %[XX2, ww2] = cropVarToHistInterval(X2(:,v),w2,v);                                                       
 
@@ -70,43 +81,48 @@ parfor v = vars
 
   [a, b] = currVar.histInterval(njets, part);                                                              
 
-  %% TESTS                                                                                                 
-  alpha = 0.01;                                                                                            
-  testType = 'kolm-smirn';                                                                                 
-  [hypKS, pvalKS, statKS] = ...                                                                            
-    test1DEquality(X1f, w1f, X2f, w2f, testType, alpha);                                                   
-    
-  testType = 'cramer';                                                                                     
-  [hypC, pvalC, statC] = ...                                                                               
-    test1DEquality(X1f, w1f, X2f, w2f, testType, alpha);                                                   
-    
-  statR = cell(nRenType,1);                                                                                
+  %% TESTS     
+  
+  alpha = 0.01;
+  % test{n} = {#cols in table, #col. for min-ranking, cell{nameOfCols}, test_pars} 
+  test{v}{1} = {3, 3,testHeader{1} 'kolm-smirn', alpha}; 
+  test{v}{2} = {3, 3,testHeader{2} 'cramer', alpha};
+  test{v}{3} = {3, 3,testHeader{3} 'anderson-darling', alpha};
+ 
+  renyiAlpha = 0.3; 
+  for l = 1:nRenType
+    if l <= length(histType)
+      nbin = getHistogramNBin(X2f, histType{l});
+      test{v}{length(test{v})+1} = ...
+        {1, 1,testHeader{3+l}, 'renyi',  {renyiAlpha, 'hist', nbin, a, b}}
+    else
+      test{v}{length(test{v})+1} = ...
+        {1, 1,testHeader{3+l}, 'renyi',  {renyiAlpha, 'kernel', 100, a, b}}
+    end
+  end
+  
+  nTest = length(test{v});
+  hyp = cell(nTest, 1);
+  pval = cell(nTest, 1);
+  stat = cell(nTest, 1);
+  
+  for k = 1:length(nTest)
+    [hyp{k} pval{k} stat{k}] = ...
+      test1DEquality(X1f, w1f, X2f, w2f, test{v}{k}{4}, test{v}{k}{5});
+  end                                                                             
 
   %% histogram                                                                                             
-  for nic = []                                                                                             
-  figure;                                                                                                  
-  nbin = getHistogramNBin(X1f, 'doane');                                                                   
-  [f1, x1] = histwc(X1f, w1f,nbin,a, b);                                                                   
-  [f2, x2] = histwc(X2f, w2f,nbin,a, b);                                                                   
-  f2 = [f2; zeros(length(f1) - length(f2),1)];                                                             
-  f1 = [f1; zeros(length(f2) - length(f1),1)];                                                             
-  figure;                                                                                                  
-  bar(x1,[f1 f2], 0.9, 'LineStyle', 'none')                                                                
-  title(leptonJetVar(v).toString())                                                                        
-  end                                                                                                      
-
-  %% Renyi                                                                                                 
-  testType = 'renyi';                                                                                      
-  % histType = {'sqrt', 'rice', 'sturge', 'doane', 'scott'};                                               
-  for r = 1:length(histType) ;                                                                             
-    nbin = getHistogramNBin(X2f, histType{r});                                                             
-    renyiAlpha = 0.3;                                                                                      
-    [~, ~, statR{r}] = ...                                                                                 
-      test1DEquality(X1f, w1f, X2f, w2f, testType, renyiAlpha,'hist', nbin, a, b);                         
-  end                                                                                                      
-  [~, ~, statR{nRenType}] = ...                                                                            
-    test1DEquality(X1f, w1f, X2f, w2f, testType, renyiAlpha,'kernel', 300, a, b);                          
-
+  for nic = []
+    figure;
+    nbin = getHistogramNBin(X1f, 'doane');
+    [f1, x1] = histwc(X1f, w1f,nbin,a, b);
+    [f2, x2] = histwc(X2f, w2f,nbin,a, b);
+    f2 = [f2; zeros(length(f1) - length(f2),1)];
+    f1 = [f1; zeros(length(f2) - length(f1),1)];
+    figure;
+    bar(x1,[f1 f2], 0.9, 'LineStyle', 'none')
+    title(leptonJetVar(v).toString())
+  end
 
   %% printout of the KS, CM                                                                                
   %lepton, dataSet, nJets, var, H, pVal, stat                                                              
@@ -116,16 +132,21 @@ parfor v = vars
   line{3} = njets;
   line{4} = v;
   line{5} = leptonJetVar(v).toString;
-  line{6} = hypKS;
-  line{7} = pvalKS;
-  line{8} = statKS;
-  line{9} = hypC;
-  line{10} = pvalC;
-  line{11} = statC;
   
-  %% Printout of Renyi dists.
-  for l = 1:nRenType;
-    line{colR - 1 + l} = statR{l};
+  linePos = 6;
+  for k=1:nTest
+    if ~isnan(hyp{k})
+      line{linePos} = hyp{k};
+      linePos = linePos + 1;
+    end
+    if ~isnan(pval{k})
+      line{linePos} = pval{k};
+      linePos = linePos + 1;
+    end
+    if ~isnan(stat{k})
+      line{linePos} = stat{k};
+      linePos = linePos + 1;
+    end
   end
   lines{v} = line;
 end
@@ -137,14 +158,14 @@ for k = 1:length(lines) % lines
   end
 end
 
-stats = nan(length(lines), nRenType + 2);
-for k = 1:length(lines) % lines
-    stats(k,1) = lines{k}{8}; % KS
-    stats(k,2) = lines{k}{11}; % CM
-  for l = 1:size(stats,2)-2 % columns
-    stats(k,l+2) = lines{k}{colR - 1 + l};
-  end
-end
+% stats = nan(length(lines), nRenType + 2);
+% for k = 1:length(lines) % lines
+%     stats(k,1) = lines{k}{8}; % KS
+%     stats(k,2) = lines{k}{11}; % CM
+%   for l = 1:size(stats,2)-2 % columns
+%     stats(k,l+2) = lines{k}{colR - 1 + l};
+%   end
+% end
 
 B = getRanksFromMin(stats);
 %meanRR = mean(B,2);
@@ -152,8 +173,8 @@ medianRR = median(B,2);
 
 for k = vars
   for l = 1:size(stats,2)
-    table{k+1, colRR - 1 + l} = B(k,l);
+    table{k+1, colRanks - 1 + l} = B(k,l);
   end
-  table{k+1 ,colRR + nRenType + 2} = medianRR(k);
+  table{k+1 ,colRanks + nRenType + 2} = medianRR(k);
 end
 

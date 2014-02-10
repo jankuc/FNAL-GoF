@@ -54,7 +54,7 @@ function [H, pValue, CM_limiting_stat] = test_wCM2(x1, w1, x2, w2, alpha)
 % Last modification: 2009.05.23 Juan Cardelino
 
 if nargin < 4
-	error('stats:cmtest2:TooFewInputs','At least 2 inputs are required.');
+	error('stats:test_wCM2:TooFewInputs','At least 4 inputs are required.');
 end
 
 % vebosity of display

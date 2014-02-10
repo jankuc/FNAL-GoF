@@ -1,5 +1,5 @@
 function [tables, results] = makeMoreTables(particleIn, nJets, doData)
-% function res = makeMoreTables(particleIn, njetsIn, doData)
+% [tables, results] = makeMoreTables(particleIn, njetsIn, doData)
 %
 % particleIn: 1 ... ele
 %             2 ... muo
