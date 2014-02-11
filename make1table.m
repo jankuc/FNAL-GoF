@@ -46,18 +46,22 @@ for k = 1:length(headerLine)
   table{1,k} = headerLine{k};
 end
 
-lines = cell(length(vars),1);
+lines = cell(max(vars),1);
 for k = 1:length(lines)
   lines{k} = cell(1, colRanks + nRenType);
 end
 
 test = cell(max(vars),1);
 parfor v = vars             
+  line = cell(1, colRanks + nRenType);
   if njets == 2 && v ==5
+    for k = 1:length(line)
+      line{k} = nan;
+    end 
     continue
+    lines{v} = line;
   end
   currVar = leptonJetVar(v);                                                                               
-  line = cell(1, colRanks + nRenType);                                                                        
   %[XX1, ww1] = cropVarToHistInterval(X1(:,v),w1,v);                                                       
   %[XX2, ww2] = cropVarToHistInterval(X2(:,v),w2,v);                                                       
 
@@ -162,11 +166,15 @@ end
 
 stats = nan(length(lines), nTest); % maybe nTest 's scope is only the parfor loop
 
-for k = 1:vars % lines==vars
+for k = vars % lines==vars
   offset = 5;
   for l = 1:size(stats,2) % columns==tests
+    try
     stats(k,l) = lines{k}{offset + test{1}{l}{2}};
     offset = offset + test{1}{l}{1};
+    catch
+      disp('asdf')
+    end
   end
 end
 
