@@ -10,7 +10,7 @@ function [legend_h,object_h,plot_h,text_strings] = columnlegend(numcolumns, str,
 %       loc - location variable for legend, default is 'NorthEast'
 %                  possible values: 'NorthWest', 'NorthEast', 'SouthEast', 'SouthWest' 
 %
-%   columnlegend(..., 'boxon')
+%   columnlegend(..., 'boxon')      default
 %   columnlegend(..., 'boxoff')
 %        set legend bounding box on/off
 %
@@ -32,7 +32,7 @@ function [legend_h,object_h,plot_h,text_strings] = columnlegend(numcolumns, str,
 
 
 location = 'NorthEast';
-boxon = false;
+boxon = true;
 for i=1:length(varargin),
     switch lower(varargin{i})
         case 'location'
@@ -74,6 +74,7 @@ loci = get(gca, 'position');
 set(legend_h, 'position', [loci(1) pos(2) width pos(4)]);
 
 
+
 col = -1;
 for i=1:numlines
     if (mod(i,numpercolumn)==1 || (numpercolumn == 1))
@@ -100,8 +101,6 @@ for i=1:numlines
     set(object_h(linenum+1), 'xdata', [col/numcolumns+spacer*3.5 col/numcolumns+spacer*3.5]);
     
     set(object_h(labelnum), 'position', [col/numcolumns+spacer*2+line_width height-(position-1)*sheight]);
-    
-   
 end
 
 %unfortunately, it is not possible to force the box to be smaller than the
@@ -120,7 +119,7 @@ switch lower(location),
     case {'southwest'}
         set(legend_h, 'position', [fig_pos(1) fig_pos(2)-pos(4)/2+pos(4)/4 pos(3) pos(4)]);
 end
-
+set(legend_h, 'Color',[ 1 1 1])
 % display box around legend
 if boxon,
     pos = get(legend_h, 'position');
