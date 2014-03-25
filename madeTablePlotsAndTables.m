@@ -1,5 +1,7 @@
 % first load MadeNewTables
 
+close all
+
 parts = [1,2];
 njets = [2,3,4];
 dataSets = 4;
@@ -34,7 +36,15 @@ for part= parts
     hf{end + 1} = figure(length(hf)+1); %#ok<SAGROW>
     plotRanks(tabl, vars);
     
+    
+    %set(hf{end},'PaperSize',fliplr(get(hf{end},'PaperSize'))) 
+    %rotate(gca,[1 1 1],180)
+    %view([90 90]);
+    %set(gca,'PaperSize',fliplr(get(gca,'PaperSize'))) 
+    
+    saveas(gcf,['testFigs/KS-Rhist-' partS '-njet_' num2str(njet) '.pdf']);
     %% vars
   end
 end
   
+% for i in `ls KS-Rhist-*.pdf`; do pdftk $i cat 1north output ./rotated/${i}; done
