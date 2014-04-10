@@ -2,17 +2,17 @@
 % MC
 particle{1} = 'ele';
 particle{2} = 'muo';
-doParticle = [1,2];
+doParticle = [1 2];
 
 nJets{2} = 2;
 nJets{3} = 3;
 nJets{4} = 4;
 doNJets = [2,3,4];
 
-data{1} = {'Train + Test vs. Yield',  'train',1,0};
-data{2} = {'Train vs. Test',          'val',1,2};
-data{3} = {'Train + Test vs. Data',   'train',1,3};
-data{4} = {'Yield vs. Data',          'train', 0,3};
+% data{1} = {'Train + Test vs. Yield',  'train',1,0};
+% data{2} = {'Train vs. Test',          'val',1,2};
+% data{3} = {'Train + Test vs. Data',   'train',1,3};
+% data{4} = {'Yield vs. Data',          'train', 0,3};
 
 try leptonJetData = evalin( 'base', 'leptonJetData' );
 catch
@@ -41,22 +41,33 @@ for k = doParticle
     lineNum = lineNum + 1;
     end
     for l = 2:18
-      %
+      % train
       [~, w1] = getLeptonJetsRamData(particle{k}, l,...
         'njets', nJets{m}, 'val', 1);
+      if (l==2) %QCD
+        w1 = w1; 
+      end
       % test
       [~, w2] = getLeptonJetsRamData(particle{k}, l,...
         'njets', nJets{m}, 'val', 2);
+      if (l==2) %QCD
+        w2 = w2;
+      end
       % yield
       [~, w3] = getLeptonJetsRamData(particle{k}, l,...
         'njets', nJets{m}, 'val', 0);
+      if (l==2) %QCD
+        w3 = w3;
+      end
       
       lepJetType = leptonJetType(l);
       line{1} = lepJetType.toString;
+      % Weights
       line{2} = sum(w1);
       line{3} = sum(w2);
       line{4} = sum(w3);
-      %line{5} = 
+      %line{5} =
+      % Num of events
       line{6} = numel(w1);
       line{7} = numel(w2);
       line{8} = numel(w3);

@@ -44,4 +44,9 @@ xticklabel_rotate(vars, 90, xtick);
 tightfig(gcf);
 columnlegend(3,labels,'location','north');
 
+<<<<<<< HEAD
+%xticklabel_rotate(vars, 90, xtick)
+columnlegend(2,labels)
+=======
 hold off
+>>>>>>> 46e3b3682ca7d9ab0347d887635563b1cc6c3e36

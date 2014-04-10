@@ -16,16 +16,19 @@ dirListing = dir2cell([dir,'*.txt']);
 for k = 1:length(dirListing)
    filename{k} = [dir, dirListing{k}];
 end
+%clear filename;
+%filename{1} = [ dir, 'ttAll_172_miniTree.txt'];
 
 maxLines = 1e5;
 format = '';
-numColumnsInFile = 30;
+numColumnsInFile = 28;
 for l = 1:numColumnsInFile
     format = [format, '%f '];
 end
 format = [format, '\n'];
 
-for k = 1:length(dirListing)
+% matlabpool
+for k = 1:length(filename)
     try
         try
             [status, result] = system( ['wc -l ', [filename{k}]] );
@@ -54,12 +57,16 @@ for k = 1:length(dirListing)
     if ~isempty( strfind(filename{k},'data_miniTree'))
     % change flag of 'train' and 'val' of data to 3
         X(:,end) = 3;
-        X(:,end-1) = 3;
+        % X(:,end-1) = 3; % was excluded from the new data
     end
     
-    save(strrep(filename{k},'.txt','.mat'),'X');
+    mySave(strrep(filename{k},'txt','mat'),X);
     
-    disp([filename{k}, ' converted succesfully. W = ', num2str(sum(X(:,end-2))), ' N = ', num2str(size(X,1)) ])
+    disp([filename{k}, ' converted succesfully. W = ', num2str(sum(X(:,end-1))), ' N = ', num2str(size(X,1)) ])
+end
 end
 
+function mySave(path, X)
+  save(path,'X');
+end
 

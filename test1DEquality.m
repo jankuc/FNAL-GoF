@@ -76,7 +76,7 @@ switch type
 %     bb ... 5
 %     par1 = pars{6}; kernelType...ksdensity
 %     par2 = pars{7}; width...ksdensity
-    pars = varargin{1};
+    pars = varargin;
     par = pars{1};
     if length(pars) > 5
     [h, p, stat] = ...
