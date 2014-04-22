@@ -90,6 +90,9 @@ x2 = x2(~isnan(x2));
 x1 = x1(:);
 x2 = x2(:);
 
+w1 = w1(:);
+w2 = w2(:);
+
 if isempty(x1)
 	error('stats:cmtest2:NotEnoughData',...
 		'Sample vector X1 is composed of all NaN''s.');
@@ -123,7 +126,11 @@ end
 % Calculate F1(x) and F2(x), the empirical (i.e., sample) CDFs.
 %
 
-x =  sort(union(x1,x2));
+[x_union, x1ind, x2ind] = union(x1,x2); 
+[x, xind] =  sort(x_union);
+w_union = [w1(x1ind); w2(x2ind)];
+w = w_union(xind);
+
 sampleCDF1 = wECDF(x1,w1,x);
 sampleCDF2 = wECDF(x2,w2,x);
 
@@ -139,7 +146,7 @@ end
 %
 % Compute the test statistic of interest.
 %
-CMstatistic  =  N1*N2/N^2 *  sum((sampleCDF1 - sampleCDF2).^2);
+CMstatistic  =  N1*N2/N *  sum(w.*(sampleCDF1 - sampleCDF2).^2);
 
 % table of the limiting distribution, taken from (2)
 z=[

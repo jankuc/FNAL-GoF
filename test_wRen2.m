@@ -65,8 +65,8 @@ if ~prod(double(ePDF1 > 0 & ePDF2 > 0))
 end
 k = length(ePDF1);
 doubleSum = sum((ePDF1.^a) .* (ePDF2.^(1-a)));
-logOfSum = log(doubleSum);
-const =1/(a-1); 
+logOfSum = log(1 + doubleSum);
+const =1/(a*(a-1)); 
 stat = const * logOfSum;
 H = nan;
 pValue = nan;
