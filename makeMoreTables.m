@@ -16,7 +16,7 @@ particle{2} = 'muo';
 data{1} = {'Train + Test vs. Yield',  'train',1,0};
 data{2} = {'Train vs. Test',          'val',1,2};
 data{3} = {'Train + Test vs. Data',   'train',1,3};
-data{4} = {'Yield vs. Data',          'train', 0,3};
+data{4} = {'Yield vs. Data',          'val', 0,3};
 
 %% Load Data
 try leptonJetData = evalin( 'base', 'leptonJetData' );

@@ -113,7 +113,7 @@ if (nargin >= 5) && ~isempty(alpha)
 		error('stats:cmtest2:BadAlpha',...
 			'Significance level ALPHA must be a scalar.');
 	end
-	if (alpha <= 0 || alpha >= 1)
+	if (alpha <= 0 || alpha >= 2)
 		error('stats:cmtest2:BadAlpha',...
 			'Significance level ALPHA must be between 0 and 1.');
 	end
@@ -136,6 +136,9 @@ sampleCDF2 = wECDF(x2,w2,x);
 
 N1=length(x1);
 N2=length(x2);
+Nw1 = sum(w1);
+Nw2 = sum(w2);
+Nw = sum(w);
 N=N1+N2;
 
 if verbose
@@ -146,8 +149,8 @@ end
 %
 % Compute the test statistic of interest.
 %
-CMstatistic  =  N1*N2/N *  sum(w.*(sampleCDF1 - sampleCDF2).^2);
-
+% CMwstatistic  =  Nw1*Nw2/Nw/Nw *  sum(w.*(sampleCDF1 - sampleCDF2).^2);
+CMstatistic  =  N1*N2/N^2 *  sum((sampleCDF1 - sampleCDF2).^2);
 % table of the limiting distribution, taken from (2)
 z=[
 	0.00000 0.02480 0.02878 0.03177 0.03430 0.03656 0.03865 0.04061 0.04247 ...
@@ -180,20 +183,30 @@ Pz=[0:0.01:0.99 0.999]';
 % compute parameters of the statistic's distribution
 T_mean =1/6+1/6/(N);
 T_var  =1/45*(N+1)/N^2 * ( 4*N1*N2*N-3*(N1^2+N2^2)-2*N1*N2 ) / (4*N1*N2);
+
 % translate the T statistic into the limiting distribution
 CM_limiting_stat =  ( CMstatistic - T_mean ) / sqrt(45*T_var) + 1/6; 
+% CMw_limiting_stat =  ( CMwstatistic - T_mean ) / sqrt(45*T_var) + 1/6; 
 % interpolate
-if CM_limiting_stat > z(end)
-	pValue=1;
-else
-	pValue = interp1(z,Pz,CM_limiting_stat,'linear');
-end
 
+% if alpha > 1
+%   CM_limiting_stat = CMw_limiting_stat;
+%   alpha = alpha - 1;
+% end
+
+if CM_limiting_stat > z(end)
+  pValue=1;
+else
+  pValue = interp1(z,Pz,CM_limiting_stat,'linear');
+  % yi = interp1(x,Y,xi,method,'extrap')
+end
 pValue = 1 - pValue;
 % test the hypothesis
 H  =  alpha > pValue;
-
+verbose = 0;
 if verbose
-	fprintf('CM_stat: %6.5f CM_lim_stat: %6.5f\n',CMstatistic,CM_limiting_stat);
-	fprintf('T_mean: %4.3f T_var: %4.3f \n',T_mean,T_var);
+  fprintf('CM_stat: %10.5f CM_lim_stat: %10.5f\n',CMstatistic,CM_limiting_stat);
+  %fprintf('T_mean: %4.3f T_var: %4.3f \n',T_mean,T_var);
+  fprintf('CMw_stat: %9.5f CMw_lim_stat: %9.5f\n',CMwstatistic,CMw_limiting_stat);
+  %fprintf('Tw_mean: %4.3f Tw_var: %4.3f \n',Tw_mean,Tw_var);
 end

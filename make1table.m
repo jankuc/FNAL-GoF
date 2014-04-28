@@ -13,15 +13,19 @@ data{3} = {'Train + Test vs. Data',   'train',1,3};
 data{4} = {'Yield vs. Data',          'train', 0,3};
 
 %% header of table
-headerLine = {'Lept','Set', '#Jets','#var','var'};
+headerLine = {'Lept','Set', '#Jets','#var','var', 'X1 0.025', 'X1 0.975',  'X2 0.025',  'X2 0.975'};
 testHeader{1} = {'H KS'; 'pval KS'; 'stat KS'};
+%testHeader{2} = {'H RKS'; 'pval RKS'; 'stat RKS'};
 testHeader{2} = {'H cra'; 'pval cra'; 'stat cra'};
+%testHeader{3} = {'H craW'; 'pval craW'; 'stat craW'};
 testHeader{3} = {'H A-D'; 'pval A-D'; 'stat A-D'};
+numOfNoRenyis = length(testHeader);
+
 histType = {'sqrt', 'rice', 'sturge', 'doane', 'scott'};
 renType = [histType 'kernel'];
 nRenType = length(renType); % # of histoggrams + kernel
 for k = 1:nRenType
-  testHeader{3 + k} = renType{k};
+  testHeader{numOfNoRenyis + k} = renType{k};
 end
 
 nTest = length(testHeader);
@@ -93,18 +97,21 @@ parfor v = vars
   alpha = 0.01;
   % test{n} = {#cols in table, #col. for min-ranking, cell{nameOfCols}, test_pars} 
   test{v}{1} = {3, 3,testHeader{1}, 'kolm-smirn', alpha}; 
+%  test{v}{2} = {3, 3,testHeader{1}, 'ren-kolm-smirn', alpha}; 
   test{v}{2} = {3, 3,testHeader{2}, 'cramer', alpha};
+  %test{v}{4} = {3, 3,testHeader{2}, 'cramer', alpha+1};
   test{v}{3} = {3, 3,testHeader{3}, 'anderson-darling', alpha};
- 
+  
+  
   renyiAlpha = 0.3; 
   for l = 1:nRenType
     if l <= length(histType)
-      nbin = getHistogramNBin(X2f, histType{l});
+      nbin = 1; %getHistogramNBin(X2f, histType{l});
       test{v}{length(test{v})+1} = ...
-        {1, 1,testHeader{3+l}, 'renyi',  {renyiAlpha, 'hist', nbin, a, b}};
+        {1, 1,testHeader{numOfNoRenyis+l}, 'renyi',  {renyiAlpha, 'hist', nbin, a, b}};
     else
       test{v}{length(test{v})+1} = ...
-        {1, 1,testHeader{3+l}, 'renyi',  {renyiAlpha, 'kernel', 100, a, b}};
+        {1, 1,testHeader{numOfNoRenyis+l}, 'renyi',  {renyiAlpha, 'kernel', 100, a, b}};
     end
   end
   
@@ -138,8 +145,13 @@ parfor v = vars
   line{3} = njets;
   line{4} = v;
   line{5} = leptonJetVar(v).toString;
+  line{6} = wprctile(X1f,0.025,w1f);
+  line{7} = wprctile(X1f,0.975,w1f);
+  line{8} = wprctile(X2f,0.025,w2f);
+  line{9} = wprctile(X2f,0.975,w2f);
   
-  linePos = 6;
+  linePos = 10;
+  
   for k=1:nTest
     if ~isnan(hyp{k})
       line{linePos} = hyp{k};

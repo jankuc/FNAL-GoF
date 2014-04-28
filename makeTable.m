@@ -27,9 +27,9 @@ doNJets = njetsIn;
 weighted{1} = 1;
 %weighted{2} = 0;
 
-vars = 1:23;
+vars = 1:22;
 if doParticle == 1
-  vars = [vars, 24];
+  vars = [vars, max(vars) + 1];
 end
 
 %% headr of table

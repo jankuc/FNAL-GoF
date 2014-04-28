@@ -17,9 +17,9 @@ hf = {};
 %% parts
 for part= parts
   if part == 1
-    vars = 1:24;
-  else
     vars = 1:23;
+  else
+    vars = 1:22;
   end
   partS = partsS{part};
   %% njets

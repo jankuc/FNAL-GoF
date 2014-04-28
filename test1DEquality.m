@@ -47,6 +47,15 @@ switch type
       end
     end
     [h, p, stat] = test_wKS2(x1, w1, x2, w2, alpha);
+  case 'ren-kolm-smirn'
+    if nargin > 5
+      if isnumeric(varargin{1})
+        alpha = varargin{1};
+      else
+        alpha = varargin{1}{1};
+      end
+    end
+    [h, p, stat] = test_wRKS2(x1, w1, x2, w2, alpha);
   case 'cramer'
     %% Cramer von Mises
     if nargin > 5
@@ -83,9 +92,12 @@ switch type
       test_wRen2(x1,x2, w1,w2, pars{1}, pars{2}, pars{3},...
       pars{4}, pars{5},pars{6}, pars{7});
     else
+      if length(pars) < 5
+        pars = pars{1};
+      end  
       [h, p, stat] = ...
       test_wRen2(x1,x2, w1,w2, pars{1}, pars{2}, pars{3},...
-      pars{4}, pars{5});
+      pars{4}, pars{5});        
     end
   case 'ranksum'
     %% Wilcoxon - not weighted !!!
