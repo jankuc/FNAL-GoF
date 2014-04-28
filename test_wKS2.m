@@ -168,7 +168,7 @@ n1     =  length(x1);
 n2     =  length(x2);
 n      =  n1 * n2 /(n1 + n2);
 
-lambda=  max((sqrt(n) + 0.12 + 0.11/sqrt(n)) * KSstatistic , 0);
+lambda = max(sqrt(n) * KSstatistic , 0);
 
 %lambdaAproxAndel = max(sqrt(n) * KSstatistic , 0);
 
