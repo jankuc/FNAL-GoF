@@ -5,18 +5,24 @@ function [tables, results] = makeMoreTables(particleIn, nJets, doData)
 %             2 ... muo
 % njetsIn:    2,3,4
 % doData:
-%   data{1} = {'Train + Test vs. Yield',  'train',1,0};
-%   data{2} = {'Train vs. Test',          'val',1,2};
-%   data{3} = {'Train + Test vs. Data',   'train',1,3};
-%   data{4} = {'Yield vs. Data',          'train', 0,3};
+% data{1} = {'Train + Test vs. Yield',  'val',[1,2],0};
+% data{2} = {'Train vs. Test',          'val',1,2};
+% data{3} = {'Train + Test vs. Data',   'val',[1,2],3};
+% data{4} = {'Yield vs. Data',          'val', 0,3};
+% data{5} = {'MC vs. Data',             'val',[0,1,2],3};
+% data{6} = {'sig vs. bg',              'type',1,0};
+
 tic
 particle{1} = 'ele';
 particle{2} = 'muo';
 
-data{1} = {'Train + Test vs. Yield',  'train',1,0};
+
+data{1} = {'Train + Test vs. Yield',  'val',[1,2],0};
 data{2} = {'Train vs. Test',          'val',1,2};
-data{3} = {'Train + Test vs. Data',   'train',1,3};
+data{3} = {'Train + Test vs. Data',   'val',[1,2],3};
 data{4} = {'Yield vs. Data',          'val', 0,3};
+data{5} = {'MC vs. Data',             'val',[0,1,2],3};
+data{6} = {'sig vs. bg',              'type',1,0};
 
 %% Load Data
 try leptonJetData = evalin( 'base', 'leptonJetData' );

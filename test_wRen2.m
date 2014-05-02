@@ -47,8 +47,8 @@ switch pdfEstType
       [ePDF2] = ksdensity(x2, x, 'kernel', varargin{1},...
                             'width', varargin{2}, 'weights', w2);
     else
-      [ePDF1] = ksdensity(x1, x, 'weights', w1);
-      [ePDF2] = ksdensity(x2, x, 'weights', w2);
+      [ePDF1] = ksdensity(x1, x,'kernel','epanechnikov', 'weights', w1);
+      [ePDF2] = ksdensity(x2, x,'kernel','epanechnikov', 'weights', w2);
     end
 end
 ePDF1(ePDF1<=0) = 1e-8;
@@ -65,7 +65,7 @@ if ~prod(double(ePDF1 > 0 & ePDF2 > 0))
 end
 k = length(ePDF1);
 doubleSum = sum((ePDF1.^a) .* (ePDF2.^(1-a)));
-logOfSum = log(1 + doubleSum);
+logOfSum = log(doubleSum);
 const =1/(a*(a-1)); 
 stat = const * logOfSum;
 H = nan;

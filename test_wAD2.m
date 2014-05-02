@@ -44,7 +44,7 @@ AkN = sum( n1*n2/N * (F1 - F2).^2 ./(H.*(1-H))) / N;
 k = 2;
 H = 1/n1 + 1/n2;
 h = sum(1./(1:N-1));
-if N < 2500
+if N < 250
   g = 0;
   for i = 1:(N-2)
     for j = (i+1):(N-1)
@@ -78,7 +78,7 @@ sigmaN = (a*N^3 + b*N^2 + c*N + d*N)/((N-1)*(N-2)*(N-3));
 %
 
 percentiles = [.75 .90 .95 .975 .99];
-z = [.326 1.225 1.960 2.719 3.752];
+z = [.326 1.225 1.960 2.719 3.752]; % first line in the table, reflecting 2sample test k==2=>m==1
 zk = z(percentiles==(1-alpha));
 
 % if alpha isnt one of predefined values, we have to interpolate z and estimate

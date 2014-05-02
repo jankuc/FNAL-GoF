@@ -1,9 +1,11 @@
 % first load MadeNewTables
 
+function madeTablePlotsAndTables(tables, stats)
+
 close all
 
-parts = [1,2];
-njets = [2,3,4];
+parts = 2;%[1,2];
+njets = 4;%[2,3,4];
 dataSets = 4;
 
 partsS{1} = 'ele';
@@ -42,7 +44,7 @@ for part= parts
     %view([90 90]);
     %set(gca,'PaperSize',fliplr(get(gca,'PaperSize'))) 
     
-    saveas(gcf,['testFigs/KS-Rhist-' partS '-njet_' num2str(njet) '.pdf']);
+    saveas(gcf,['newTestFigs/KS-Rhist-' partS '-njet_' num2str(njet) '.pdf']);
     %% vars
   end
 end

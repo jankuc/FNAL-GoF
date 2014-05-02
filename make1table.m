@@ -7,13 +7,16 @@ function [table, stats] = make1table(part, njets, typeOfData, vars, X1, w1, X2, 
 particle{1} = 'ele';
 particle{2} = 'muo';
 
-data{1} = {'Train + Test vs. Yield',  'train',1,0};
+data{1} = {'Train + Test vs. Yield',  'val',[1,2],0};
 data{2} = {'Train vs. Test',          'val',1,2};
-data{3} = {'Train + Test vs. Data',   'train',1,3};
-data{4} = {'Yield vs. Data',          'train', 0,3};
+data{3} = {'Train + Test vs. Data',   'val',[1,2],3};
+data{4} = {'Yield vs. Data',          'val', 0,3};
+data{5} = {'MC vs. Data',             'val',[0,1,2],3};
+data{6} = {'sig vs. bg',              'type',1,0};
 
 %% header of table
 headerLine = {'Lept','Set', '#Jets','#var','var', 'X1 0.025', 'X1 0.975',  'X2 0.025',  'X2 0.975'};
+offset = length(headerLine);
 testHeader{1} = {'H KS'; 'pval KS'; 'stat KS'};
 %testHeader{2} = {'H RKS'; 'pval RKS'; 'stat RKS'};
 testHeader{2} = {'H cra'; 'pval cra'; 'stat cra'};
@@ -90,8 +93,9 @@ parfor v = vars
     areBelowZero2 = logical(zeros(size(w2f)));                                                             
   end                                                                                                      
 
-  [a, b] = currVar.histInterval(njets, part);                                                              
-
+  %[a, b] = currVar.histInterval(njets, part);                                                              
+  a = wprctile([X1f(:); X2f(:)],0.025,[w1f(:); w2f(:)]);
+  b = wprctile([X1f(:); X2f(:)],0.975,[w1f(:); w2f(:)]);
   %% TESTS     
   
   alpha = 0.01;
@@ -106,7 +110,7 @@ parfor v = vars
   renyiAlpha = 0.3; 
   for l = 1:nRenType
     if l <= length(histType)
-      nbin = 1; %getHistogramNBin(X2f, histType{l});
+      nbin = min(getHistogramNBin(X2f, histType{l}), getHistogramNBin(X1f, histType{l}));
       test{v}{length(test{v})+1} = ...
         {1, 1,testHeader{numOfNoRenyis+l}, 'renyi',  {renyiAlpha, 'hist', nbin, a, b}};
     else
@@ -178,14 +182,16 @@ end
 
 stats = nan(length(lines), nTest); % maybe nTest 's scope is only the parfor loop
 
+minRankColumns = [12 15 18:24];
+
+%  constructing stats
 for k = vars % lines==vars
-  offset = 5;
   for l = 1:size(stats,2) % columns==tests
     try
-    stats(k,l) = lines{k}{offset + test{1}{l}{2}};
+    stats(k,l) = lines{k}{minRankColumns(l)};%lines{k}{offset + test{1}{l}{2}};
     offset = offset + test{1}{l}{1};
     catch
-      disp('asdf')
+      disp(['error: statistic #', num2str(k)])
     end
   end
 end

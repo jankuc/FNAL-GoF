@@ -7,10 +7,7 @@ function [ data, weight ] = getLeptonJetsRamData(muoEle,lepJetType, varargin)
 %       lepJetType:   leptonJetType, [leptonJetType1,leptonJetType2,...] or [2:18]
 %
 % VARARGIN:
-%       train:        0... yield,
-%               1... train, test
-%               3... data
-%       val:          0... yield
+%       val:    0... yield
 %               1... train
 %               2... test
 %               3... data
@@ -21,6 +18,9 @@ function [ data, weight ] = getLeptonJetsRamData(muoEle,lepJetType, varargin)
 % EXAMPLE: getLeptonJetsRamData('muo',2:18, 'njets', 2:4, 'val', 0)
 %     loads all of the channels of muon, all jets (2,3,4) and gets only
 %     yield sample
+%
+%     getLeptonJetsRamData('muo',2:18, 'njets', 2:4, 'val', [0,1,2])
+%         loads whole MC.
 
 try leptonJetData = evalin( 'base', 'leptonJetData' );
 catch
@@ -80,8 +80,9 @@ weight = Y(:, end-1);
 end
 
 function Y = filterRows(Y, yFlagsCol, logic)
-  if size(logic,2) > 1
-    YFlagsRep = repmat(yFlagsCol,1,size(logic,2));
+  logic = logic(:)';
+  if length(logic) > 1
+    YFlagsRep = repmat(yFlagsCol,1,length(logic));
     logicRep = repmat(logic, size(YFlagsRep,1),1);
     Y = Y(sum(YFlagsRep==logicRep,2)>0,:);
   else
