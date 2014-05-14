@@ -32,13 +32,15 @@ alpha = 0.01;
 W_KOLM_SMIRN= 'kolm-smirn';
 W_CRAMER = 'cramer';
 W_RENYI = 'renyi';
+W_ANDERSON_DARLING = 'anderson-darling';
 WILCOXON = 'ranksum';
 W_WILCOXON= 'wwilcoxon';
 KOLM_SMIRN = 'kstest2';
 
 
 switch type
-  case 'kolm-smirn'
+  case W_KOLM_SMIRN
+		%% Komlogorov-Smirnov
     if nargin > 5
       if isnumeric(varargin{1})
         alpha = varargin{1};
@@ -56,8 +58,8 @@ switch type
       end
     end
     [h, p, stat] = test_wRKS2(x1, w1, x2, w2, alpha);
-  case 'cramer'
-    %% Cramer von Mises
+  case W_CRAMER
+    %% Cramer-von Mises
     if nargin > 5
       if isnumeric(varargin{1})
         alpha = varargin{1};
@@ -66,7 +68,7 @@ switch type
       end
     end
     [h, p, stat] = test_wCM2(x1, w1, x2, w2, alpha);
-   case  'anderson-darling'
+   case  W_ANDERSON_DARLING
     %% Anderson-Darling
     if nargin > 5
       if isnumeric(varargin{1})
@@ -76,15 +78,8 @@ switch type
       end
     end
     [h, p, stat] = test_wAD2(x1, w1, x2, w2, alpha);
-  case 'renyi'
-    %% Renyi
-%     a = pars{1}; % Renyi alpha
-%     pdfEstType = pars{2};
-%     nbin = pars{3};
-%     aa .... 4
-%     bb ... 5
-%     par1 = pars{6}; kernelType...ksdensity
-%     par2 = pars{7}; width...ksdensity
+  case W_RENYI
+		%% Renyi
     pars = varargin;
     par = pars{1};
     if length(pars) > 5
@@ -103,10 +98,10 @@ switch type
     %% Wilcoxon - not weighted !!!
     [p,h, stats] = ranksum(x1,x2,'alpha',alpha);
     stat = stats.zval;
-  case 'wwilcoxon'
+  case W_WILCOXON
     %% Weighted generalisation of Wilcoxon
     [p, h, stat] = test_wGMWW(x1, w1, x2, w2, alpha);
-  case 'kstest2'
+  case KOLM_SMIRN
     %% Kolmogorov-Smirnov - not weighted
     [h, p, stat] = kstest2(x1,x2, alpha);
   otherwise
