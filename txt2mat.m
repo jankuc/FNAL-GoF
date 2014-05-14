@@ -21,7 +21,7 @@ end
 
 maxLines = 1e5;
 format = '';
-numColumnsInFile = 28;
+numColumnsInFile = 45;
 for l = 1:numColumnsInFile
     format = [format, '%f '];
 end
@@ -56,7 +56,7 @@ for k = 1:length(filename)
     
     if ~isempty( strfind(filename{k},'data_miniTree'))
     % change flag of 'train' and 'val' of data to 3
-        X(:,end) = 3;
+        X(:,end-2) = 3;
         % X(:,end-1) = 3; % was excluded from the new data
     end
     

@@ -13,9 +13,8 @@ function [ data, weight ] = getLeptonJetsRamData(muoEle,lepJetType, varargin)
 %               3... data
 %       njets:        2, 3, 4==(4,5,...)
 %       type:         0... background ?
-%               1... signal ?
-%
-% EXAMPLE: getLeptonJetsRamData('muo',2:18, 'njets', 2:4, 'val', 0)
+%  
+%   EXAMPLE: getLeptonJetsRamData('muo',2:18, 'njets', 2:4, 'val', 0)
 %     loads all of the channels of muon, all jets (2,3,4) and gets only
 %     yield sample
 %
@@ -35,47 +34,38 @@ if ~isreal(lepJetType)
 end
 
 if length(lepJetType) ~= leptonJetType.numTypes
-  Y = Y(ismember(Y(:,end-4),lepJetType),:);
+  Y = Y(ismember(Y(:,end-3),lepJetType),:);
 end
 
 paramStruct = nameValuePairToStruct(struct,varargin);
-validStruct = struct('val',0,'njets',0,'type',0);
+validStruct = struct('val',0,'njets',0);
 
 if (sum(ismember(fieldnames(paramStruct),fieldnames(validStruct))) ~= length(fieldnames(paramStruct)))
   error('Fieldnames of structures do not correspond. Check Name-value pairs in the function input.')
 end
 
-dataDim = 24;
+dataDim = 42;
 
 % last columns of X: "", "NJets","type","Weight","train","val"
 
 try njets = getfield(paramStruct,'njets');
   if (length(njets)==1 && njets >=4)
-    Y = Y(Y(:,end-3)>=njets,:);
+    Y = Y(Y(:,end-1)>=njets,:);
   else
-    yFlagsCol = Y(:,end-3);
+    yFlagsCol = Y(:,end-1);
     logic = njets;
     Y = filterRows(Y, yFlagsCol, logic);
   end
 end
-% try	train = getfield(paramStruct, 'train');
-%   yFlagsCol = Y(:,end-1);
-%   logic = train;
-%   Y = filterRows(Y, yFlagsCol, logic);
-%end
+
 try val = getfield(paramStruct,'val');
-  yFlagsCol = Y(:,end);
-  logic = val;
-  Y = filterRows(Y, yFlagsCol, logic);
-end
-try type = getfield(paramStruct,'type');
   yFlagsCol = Y(:,end-2);
-  logic = type;
+  logic = val;
   Y = filterRows(Y, yFlagsCol, logic);
 end
 
 data = Y(:,1:dataDim);
-weight = Y(:, end-1);
+weight = Y(:, end);
 
 end
 

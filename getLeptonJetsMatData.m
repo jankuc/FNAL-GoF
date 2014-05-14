@@ -8,30 +8,25 @@ function [ data, weight, last6cols] = getLeptonJetsMatData(muoEle,lepJetType,var
 %	lepJetType:   leptonJetType, [leptonJetType1,leptonJetType2,...],[2:18]
 %
 % VARARGIN:
-%	train:        0... yield,
-%               1... train, test
-%               3... data
 %	val:          0... yield
 %               1... train
 %               2... test
 %               3... data
 %	njets:        2, 3, 4==(4,5,...)
-%	type:         0... background ?
-%               1... signal ?
 %
 % EXAMPLE: getLeptonJetsRamData('muo',2:18, 'njets', 4, 'val', 0)
 %     loads all of the channels of muon, all jets (2,3,4) and gets only
 %     yield sample
 
 paramStruct = nameValuePairToStruct(struct,varargin);
-validStruct = struct('val',0,'njets',0,'type',0);
+validStruct = struct('val',0,'njets',0);
 
 if (sum(ismember(fieldnames(paramStruct),fieldnames(validStruct))) ~= length(fieldnames(paramStruct)))
   error('Fieldnames of structures do not correspond. Check Name-value pairs in the function input.')
 end
 
 ext = '.mat';
-dataDim = 24;
+dataDim = 42;
 
 if isreal(lepJetType)
   lepJetType = leptonJetType(lepJetType);
@@ -63,7 +58,7 @@ X = cell(lepJetLength);
 for k = 1:lepJetLength
   try
     Xtmp = load([dir '/' filename{k}]);
-    X{k} = [Xtmp.X(:,1:dataDim)   double(lepJetType(k).abs)*ones(size(Xtmp.X,1),1)   Xtmp.X(:,end-3:end)];
+    X{k} = [Xtmp.X(:,1:dataDim)   double(lepJetType(k).abs)*ones(size(Xtmp.X,1),1)   Xtmp.X(:,end-2:end)];
     disp([leptonJetType(k).toString()]);
     disp(['    Loaded: W = ', num2str(sum(Xtmp.X(:,end-1))),', N = ',num2str(size(Xtmp.X,1))])
   catch e
@@ -83,7 +78,7 @@ end
 try val = getfield(paramStruct,'val');
   for k = 1:lepJetLength
     Y = X{k};
-    Y = Y(Y(:,end)==val,:);
+    Y = Y(Y(:,end-2)==val,:);
     X{k} = Y;
   end
 end
@@ -91,16 +86,9 @@ try njets = getfield(paramStruct,'njets');
   for k = 1:lepJetLength
     Y = X{k};
     if njets >=4
-      Y = Y(Y(:,end-3)>=njets,:);
+      Y = Y(Y(:,end-1)>=njets,:);
     end
-    Y = Y(Y(:,end-3)==njets,:);
-    X{k} = Y;
-  end
-end
-try type = getfield(paramStruct,'type');
-  for k = 1:lepJetLength
-    Y = X{k};
-    Y = Y(Y(:,end-2)==type,:);
+    Y = Y(Y(:,end-1)==njets,:);
     X{k} = Y;
   end
 end
@@ -110,7 +98,7 @@ for k = 1:lepJetLength
   Z = [Z;X{k}];
 end
 data = Z(:,1:dataDim);
-weight = Z(:, end-1);
-last6cols = Z(:, end-4:end);
+weight = Z(:, end);
+last6cols = Z(:, end-2:end);
 end
 

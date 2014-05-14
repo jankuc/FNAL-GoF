@@ -1,5 +1,5 @@
 classdef leptonJetVar < uint8
-  % LeptonJet variable map 1..25 -> 'Apla','Spher',...
+  % LeptonJet variable map 1..42 -> 'Apla','Spher',...
   %   leptonJetVar(1).toString == leptonJetType.Apla == 'Apla'
   
   enumeration
@@ -25,9 +25,26 @@ classdef leptonJetVar < uint8
     Ht (20),
     Ht20 (21),
     Ktminp (22),
-    Lepdphimet (23), 
+    Lepdphimet (23),
     Lepemv (24),
-    Jetm (25)
+    Jetm (25),
+    var26 (26),
+    var27 (27),
+    var28 (28),
+    DphiJetJet1 (29), % allNJets
+    DphiJetJet2 (30), % NJets > 2
+    DphiJetJet3 (31), % NJets > 3
+    DRJetJet1 (32), % allNJets
+    DRJetJet2 (33), % NJets > 2
+    DRJetJet3 (34), % NJets > 3
+    Jtpt1 (35), % allNJets
+    Jtpt2 (36), % allNJets
+    Jtpt3 (37), % NJets > 2
+    Jtpt4 (38), % NJets > 3
+    Jteta1 (39), % allNJets
+    Jteta2 (40), % allNJets
+    Jteta3 (41), % NJets > 2
+    Jteta4 (42), % NJets > 3
   end
   methods
     function str = toString(obj)
@@ -76,11 +93,11 @@ classdef leptonJetVar < uint8
       end
     end
     function n = numTypes()
-      n = 25;
+      n = 42;
     end
     function all = getAllStrings()
       % returns vector of all types without data
-      n =24;% leptonJetVar.numTypes;
+      n = 42;% leptonJetVar.numTypes;
       all = cell(n-1,1);
       for k = 1:n-1
         aaa = leptonJetVar(k);
