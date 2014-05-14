@@ -2,10 +2,13 @@ particle{1} = 'ele';
 particle{2} = 'muo';
 doParticle = 1;
 
-data{1} = {'Train + Test vs. Yield',  'train',1,0};
+data{1} = {'Train + Test vs. Yield',  'val',[1,2],0};
 data{2} = {'Train vs. Test',          'val',1,2};
-data{3} = {'Train + Test vs. Data',   'train',1,3};
-data{4} = {'Yield vs. Data',          'train', 0,3};
+data{3} = {'Train + Test vs. Data',   'val',[1,2],3};
+data{4} = {'Yield vs. Data',          'val', 0,3};
+data{5} = {'MC vs. Data',             'val',[0,1,2],3};
+data{6} = {'sig vs. bg',              'type',1,0};
+
 doData = 4;
 
 nJets{2} = 2;
@@ -23,9 +26,9 @@ for k = doParticle
         vars = [1:24];
         njets = nJets{m};
         
-        [X1, w1] = getLeptonJetsMatData(particle{k}, 1:leptonJetType.numTypes,...
+        [X1, w1] = getLeptonJetsRamData(particle{k}, 1:leptonJetType.numTypes,...
           'njets', nJets{m}, data{l}{2}, data{l}{3});
-        [X2, w2] = getLeptonJetsMatData(particle{k}, 1:leptonJetType.numTypes,...
+        [X2, w2] = getLeptonJetsRamData(particle{k}, 1:leptonJetType.numTypes,...
           'njets', nJets{m}, data{l}{2}, data{l}{4});
         
         %         wYi = sum(w1)

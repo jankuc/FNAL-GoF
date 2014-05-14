@@ -18,7 +18,7 @@ data{6} = {'sig vs. bg',              'type',1,0};
 headerLine = {'Lept','Set', '#Jets','#var','var', 'X1 0.025', 'X1 0.975',  'X2 0.025',  'X2 0.975'};
 offset = length(headerLine);
 testHeader{1} = {'H KS'; 'pval KS'; 'stat KS'};
-%testHeader{2} = {'H RKS'; 'pval RKS'; 'stat RKS'};
+%testHeader{2} = {'H KS'; 'pval RKS'; 'stat RKS'};
 testHeader{2} = {'H cra'; 'pval cra'; 'stat cra'};
 %testHeader{3} = {'H craW'; 'pval craW'; 'stat craW'};
 testHeader{3} = {'H A-D'; 'pval A-D'; 'stat A-D'};
@@ -59,7 +59,7 @@ for k = 1:length(lines)
 end
 
 test = cell(max(vars),1);
-parfor v = vars             
+for v = vars             
   line = cell(1, colRanks + nRenType);
   if njets == 2 && v ==5
     for k = 1:length(line)
@@ -115,7 +115,7 @@ parfor v = vars
         {1, 1,testHeader{numOfNoRenyis+l}, 'renyi',  {renyiAlpha, 'hist', nbin, a, b}};
     else
       test{v}{length(test{v})+1} = ...
-        {1, 1,testHeader{numOfNoRenyis+l}, 'renyi',  {renyiAlpha, 'kernel', 100, a, b}};
+        {1, 1,testHeader{numOfNoRenyis+l}, 'renyi',  {renyiAlpha, 'kernel', 40, a, b}};
     end
   end
   
@@ -123,10 +123,15 @@ parfor v = vars
   pval = cell(nTest,1);
   stat = cell(nTest,1);
   
-  for k = 1:nTest
+  for k = 1:3
     [hyp{k} pval{k} stat{k}] = ...
       test1DEquality(X1f, w1f, X2f, w2f, test{v}{k}{4}, test{v}{k}{5});
-  end                                                                             
+  end     
+  for k = 4:nTest
+      hyp{k} = nan;
+      pval{k} = nan;
+      stat{k} = 0;
+  end  
 
   %% histogram                                                                                             
   for nic = []
@@ -153,21 +158,32 @@ parfor v = vars
   line{7} = wprctile(X1f,0.975,w1f);
   line{8} = wprctile(X2f,0.025,w2f);
   line{9} = wprctile(X2f,0.975,w2f);
-  
   linePos = 10;
   
   for k=1:nTest
     if ~isnan(hyp{k})
       line{linePos} = hyp{k};
       linePos = linePos + 1;
+
+    else
+      linePos = linePos + 1;
+      error('isnan')
     end
+    
     if ~isnan(pval{k})
       line{linePos} = pval{k};
       linePos = linePos + 1;
+    else
+      linePos = linePos + 1;
+      error('isnan')
     end
+    
     if ~isnan(stat{k})
       line{linePos} = stat{k};
       linePos = linePos + 1;
+    else
+      linePos = linePos + 1;
+      error('isnan')
     end
   end
   lines{v} = line;

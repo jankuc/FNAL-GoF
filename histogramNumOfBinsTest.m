@@ -8,7 +8,7 @@ particle{1} = 'ele';
 particle{2} = 'muo';
 doParticle = 1;
 
-data = {'Yield vs. Data',          'train', 0,3};
+data = {'Yield vs. Data',          'val', 0,3};
 
 doNJets = [2,3,4];
 
@@ -36,7 +36,7 @@ for part = doParticle
   end
   
   for k = doNJets
-    [X, ~] = getLeptonJetsRamData(particle{part}, 1, 'njets', k, 'train', 3);
+    [X, ~] = getLeptonJetsRamData(particle{part}, 1, 'njets', k, 'val', 3);
     for var = vars
       for l = 1:length(histType)
         tab_part{(k-2)*length(histType) + l + 2,var+2} = ...

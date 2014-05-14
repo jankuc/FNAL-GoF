@@ -169,7 +169,7 @@ n2     =  length(x2);
 n      =  n1 * n2 /(n1 + n2);
 
 lambda = max(sqrt(n) * KSstatistic , 0);
-
+KSstatistic = lambda;
 %lambdaAproxAndel = max(sqrt(n) * KSstatistic , 0);
 
 if tail ~= 0        % 1-sided test.

@@ -39,10 +39,10 @@ F2 = F2(nonZeroes);
 
 % Compute the test statistic of interest.
 
-AkN = sum( n1*n2/N * (F1 - F2).^2 ./(H.*(1-H))) / N;
+AkN = n1*n2/N * sum((F1 - F2).^2 ./(H.*(1-H))) / N;
 
 k = 2;
-H = 1/n1 + 1/n2;
+HH = 1/n1 + 1/n2;
 h = sum(1./(1:N-1));
 if N < 250
   g = 0;
@@ -55,9 +55,9 @@ else
   g = pi^2/6;
 end
 
-a =  (4*g - 6)*k + (10 - 6*g)*H - 4*g + 6; 
-b = (2*g - 4)*k^2 + 8*h*k + (2*g - 14*h - 4)*H - 8*h + 4*g - 6;
-c = (6*h + 2*g - 2)*k^2 + (4*h - 4*g + 6)*k + (2*h - 6)*H + 4*h;
+a =  (4*g - 6)*k + (10 - 6*g)*HH - 4*g + 6; 
+b = (2*g - 4)*k^2 + 8*h*k + (2*g - 14*h - 4)*HH - 8*h + 4*g - 6;
+c = (6*h + 2*g - 2)*k^2 + (4*h - 4*g + 6)*k + (2*h - 6)*HH + 4*h;
 d = (2*h + 6)*k^2 - 4*h*k;
 sigmaN = (a*N^3 + b*N^2 + c*N + d*N)/((N-1)*(N-2)*(N-3));
 
@@ -97,7 +97,6 @@ b =    0.004313;
 c =     -0.3317;
 d =      -1.117;
 pval = a*exp(b*(1-AkN)) + c*exp(d*(1-AkN));
-
 
 Hyp =  (AkN - 1)/sigmaN >= zk;
 

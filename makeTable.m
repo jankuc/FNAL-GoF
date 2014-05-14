@@ -14,11 +14,13 @@ particle{1} = 'ele';
 particle{2} = 'muo';
 doParticle = particleIn;
 
-data{1} = {'Train + Test vs. Yield',  'train',1,0};
-data{2} = {'Train vs. Test',          'val',1,2};
-data{3} = {'Train + Test vs. Data',   'train',1,3};
-data{4} = {'Yield vs. Data',          'val', 0,3};
 
+data{1} = {'Train + Test vs. Yield',  'val',[1,2],0};
+data{2} = {'Train vs. Test',          'val',1,2};
+data{3} = {'Train + Test vs. Data',   'val',[1,2],3};
+data{4} = {'Yield vs. Data',          'val', 0,3};
+data{5} = {'MC vs. Data',             'val',[0,1,2],3};
+data{6} = {'sig vs. bg',              'type',1,0};
 nJets{2} = 2;
 nJets{3} = 3;
 nJets{4} = 4;
