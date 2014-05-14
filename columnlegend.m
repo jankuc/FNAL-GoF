@@ -71,7 +71,7 @@ spacer = xdata(1)*rescale;                    % rescaled spacer used for margins
 
 %put the legend on the upper left corner to make initial adjustments easier
 loci = get(gca, 'position');
-set(legend_h, 'position', [loci(1) pos(2) width pos(4)]);
+set(legend_h, 'position', [loci(1) pos(2) width*1.2 pos(4)]);
 
 
 
