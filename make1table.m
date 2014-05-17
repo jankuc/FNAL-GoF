@@ -59,7 +59,7 @@ for k = 1:length(lines)
 end
 
 test = cell(max(vars),1);
-for v = vars             
+parfor v = vars             
   line = cell(1, colRanks + nRenType);
   if njets == 2 && v ==5
     for k = 1:length(line)
@@ -111,6 +111,10 @@ for v = vars
   for l = 1:nRenType
     if l <= length(histType)
       nbin = min(getHistogramNBin(X2f, histType{l}), getHistogramNBin(X1f, histType{l}));
+      nbin = min(100,nbin);
+      if nbin==100
+        disp([particle{part} '_njets-' num2str(njets)  '_' data{typeOfData}{1} '_' currVar.toString()])
+      end
       test{v}{length(test{v})+1} = ...
         {1, 1,testHeader{numOfNoRenyis+l}, 'renyi',  {renyiAlpha, 'hist', nbin, a, b}};
     else
@@ -130,7 +134,7 @@ for v = vars
   for k = 4:nTest
       hyp{k} = nan;
       pval{k} = nan;
-      stat{k} = 0;
+      [~, ~, stat{k}] = test1DEquality(X1f, w1f, X2f, w2f, test{v}{k}{4}, test{v}{k}{5});
   end  
 
   %% histogram                                                                                             
@@ -166,16 +170,16 @@ for v = vars
       linePos = linePos + 1;
 
     else
-      linePos = linePos + 1;
-      error('isnan')
+      %linePos = linePos + 1;
+%      error('isnan')
     end
     
     if ~isnan(pval{k})
       line{linePos} = pval{k};
       linePos = linePos + 1;
     else
-      linePos = linePos + 1;
-      error('isnan')
+      %linePos = linePos + 1;
+  %    error('isnan')
     end
     
     if ~isnan(stat{k})
@@ -183,7 +187,7 @@ for v = vars
       linePos = linePos + 1;
     else
       linePos = linePos + 1;
-      error('isnan')
+   %   error('isnan')
     end
   end
   lines{v} = line;

@@ -34,7 +34,7 @@ for k = 1:length(filename)
             [status, result] = system( ['wc -l ', [filename{k}]] );
             numLines = sscanf(result, '%d');
         catch
-            numLines = 1e7;
+            numLines = 5e6;
         end
         numOfReads = floor(numLines/maxLines) + 1;
         fid = fopen([filename{k}]);
@@ -62,7 +62,7 @@ for k = 1:length(filename)
     
     mySave(strrep(filename{k},'txt','mat'),X);
     
-    disp([filename{k}, ' converted succesfully. W = ', num2str(sum(X(:,end-1))), ' N = ', num2str(size(X,1)) ])
+    disp([filename{k}, ' converted succesfully. W = ', num2str(sum(X(:,end))), ' N = ', num2str(size(X,1)) ])
 end
 end
 
