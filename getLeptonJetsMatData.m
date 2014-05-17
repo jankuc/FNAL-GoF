@@ -60,7 +60,7 @@ for k = 1:lepJetLength
     Xtmp = load([dir '/' filename{k}]);
     X{k} = [Xtmp.X(:,1:dataDim)   double(lepJetType(k).abs)*ones(size(Xtmp.X,1),1)   Xtmp.X(:,end-2:end)];
     disp([leptonJetType(k).toString()]);
-    disp(['    Loaded: W = ', num2str(sum(Xtmp.X(:,end-1))),', N = ',num2str(size(Xtmp.X,1))])
+    disp(['    Loaded: W = ', num2str(sum(Xtmp.X(:,end))),', N = ',num2str(size(Xtmp.X,1))])
   catch e
     disp(['Could not load: ' dir '/' filename{k} ])
     disp(e)
@@ -99,6 +99,6 @@ for k = 1:lepJetLength
 end
 data = Z(:,1:dataDim);
 weight = Z(:, end);
-last6cols = Z(:, end-2:end);
+last6cols = Z(:, end-3:end);
 end
 

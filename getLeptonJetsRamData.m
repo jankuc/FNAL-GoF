@@ -38,7 +38,7 @@ if length(lepJetType) ~= leptonJetType.numTypes
 end
 
 paramStruct = nameValuePairToStruct(struct,varargin);
-validStruct = struct('val',0,'njets',0);
+validStruct = struct('val',0,'njets',0, 'type',0);
 
 if (sum(ismember(fieldnames(paramStruct),fieldnames(validStruct))) ~= length(fieldnames(paramStruct)))
   error('Fieldnames of structures do not correspond. Check Name-value pairs in the function input.')
@@ -62,6 +62,10 @@ try val = getfield(paramStruct,'val');
   yFlagsCol = Y(:,end-2);
   logic = val;
   Y = filterRows(Y, yFlagsCol, logic);
+end
+
+try type = getfield(paramStruct, 'type');
+  warning('Column TYPE is not supported in new tt_leptonjets 42 data.');
 end
 
 data = Y(:,1:dataDim);
