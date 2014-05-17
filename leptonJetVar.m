@@ -26,11 +26,11 @@ classdef leptonJetVar < uint8
     Ht20 (21),
     Ktminp (22),
     Lepdphimet (23),
-    Lepemv (24),
-    Jetm (25),
-    var26 (26),
-    var27 (27),
-    var28 (28),
+    LeppT (24),
+    LepEta (25),
+    Jetm (26),
+    Metper (27),
+    Metpar (28),
     DphiJetJet1 (29), % allNJets
     DphiJetJet2 (30), % NJets > 2
     DphiJetJet3 (31), % NJets > 3
